@@ -26,6 +26,7 @@ Iowa State University · CprE 487/587 · Lab 5 · Team 06
 | `staged_mac` | `piped_mac` | MACs per inference | In conv2 alone |
 | :---: | :---: | :---: | :---: |
 | **118 LUT · 0 DSP** | **41 LUT · 1 DSP** | **131.6 M** | **80.3 M** |
+
 | | |
 |---|---|
 | Period | October 2026 (in progress) |
