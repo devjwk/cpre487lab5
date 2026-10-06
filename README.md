@@ -1,15 +1,11 @@
 <div align="center">
 
-# HARDWARE-ACCELERATED CNN INFERENCE
+<img src="assets/banner.svg" alt="HARDWARE-ACCELERATED CNN INFERENCE — Quantized layers in software, their arithmetic on the FPGA" width="100%">
 
-### Quantized layers in software, their arithmetic on the FPGA
-
-**C++ · VHDL · ZedBoard**
-
-![Software](https://img.shields.io/badge/Software-C%2B%2B-6366F1?style=flat-square)
-![RTL](https://img.shields.io/badge/RTL-VHDL-0F172A?style=flat-square)
-![Board](https://img.shields.io/badge/Board-ZedBoard-0891B2?style=flat-square)
-![Stage](https://img.shields.io/badge/Stage-In%20progress-F59E0B?style=flat-square)
+![Software](https://img.shields.io/badge/Software-C%2B%2B-C2410C?style=flat-square&labelColor=431407)
+![RTL](https://img.shields.io/badge/RTL-VHDL-7C2D12?style=flat-square&labelColor=431407)
+![Board](https://img.shields.io/badge/Board-ZedBoard-EA580C?style=flat-square&labelColor=431407)
+![Stage](https://img.shields.io/badge/Stage-In%20progress-D97706?style=flat-square&labelColor=431407)
 
 Iowa State University · CprE 487/587 · Lab 5 · Team 06
 
@@ -46,14 +42,16 @@ Labs 1–4 produced a TinyImageNet CNN, a C++ implementation of it, two hardware
 ## Where this lab fits
 
 ```mermaid
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#C2410C", "primaryTextColor": "#ffffff", "primaryBorderColor": "#431407", "lineColor": "#94A3B8", "secondaryColor": "#C2410C", "tertiaryColor": "#431407", "clusterBkg": "#F8FAFC", "clusterBorder": "#94A3B8", "edgeLabelBackground": "#F1F5F9", "fontFamily": "ui-sans-serif, system-ui, sans-serif"}}}%%
 flowchart LR
     L1["Lab 1 · Train in TensorFlow"] --> L2["Lab 2 · C++ framework"] --> L3["Lab 3 · MAC units"] --> L4["Lab 4 · Quantization"] --> L5["Lab 5 · Hardware integration"]
-    style L5 fill:#6366F1,color:#ffffff,stroke:#4338CA
+    style L5 fill:#FDBA74,color:#0B1220,stroke:#431407
 ```
 
 ## Accelerated layer
 
 ```mermaid
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#C2410C", "primaryTextColor": "#ffffff", "primaryBorderColor": "#431407", "lineColor": "#94A3B8", "secondaryColor": "#C2410C", "tertiaryColor": "#431407", "clusterBkg": "#F8FAFC", "clusterBorder": "#94A3B8", "edgeLabelBackground": "#F1F5F9", "fontFamily": "ui-sans-serif, system-ui, sans-serif"}}}%%
 flowchart LR
     L["Conv or dense layer · C++"] --> K["Pack weight and activation pairs"]
     K --> F["AXI-Stream FIFO"]
