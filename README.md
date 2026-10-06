@@ -1,7 +1,31 @@
-# CprE 487/587 Lab 5 — Hardware Integration of Quantized CNN Inference (Team 06)
+<div align="center">
 
-Connects the quantized C++ inference framework from Lab 4 to the multiply-accumulate (MAC) units from Lab 3, so convolution and dense layers run their arithmetic on the ZedBoard FPGA.
+# HARDWARE-ACCELERATED CNN INFERENCE
 
+### Quantized layers in software, their arithmetic on the FPGA
+
+**C++ · VHDL · ZedBoard**
+
+![Software](https://img.shields.io/badge/Software-C%2B%2B-6366F1?style=flat-square)
+![RTL](https://img.shields.io/badge/RTL-VHDL-0F172A?style=flat-square)
+![Board](https://img.shields.io/badge/Board-ZedBoard-0891B2?style=flat-square)
+![Stage](https://img.shields.io/badge/Stage-In%20progress-F59E0B?style=flat-square)
+
+Iowa State University · CprE 487/587 · Lab 5 · Team 06
+
+[Overview](#overview) · [Accelerated layer](#accelerated-layer) · [Where this lab fits](#where-this-lab-fits) · [My role](#my-role) · [Limitations](#limitations-and-next-steps)
+
+</div>
+
+---
+
+> **Where it stands — In progress**  
+> The accelerated software path and both MAC units are in place.  
+> A full-model run on the board has not been verified yet.
+
+| `staged_mac` | `piped_mac` | MACs per inference | In conv2 alone |
+| :---: | :---: | :---: | :---: |
+| **118 LUT · 0 DSP** | **41 LUT · 1 DSP** | **131.6 M** | **80.3 M** |
 | | |
 |---|---|
 | Period | October 2026 (in progress) |
@@ -17,6 +41,28 @@ Labs 1–4 produced a TinyImageNet CNN, a C++ implementation of it, two hardware
 - **Problem:** the quantized model still runs every multiply-add on the CPU. Conv2 alone is 80.3 M of the model's 131.6 M MACs per inference, so that is where hardware should help most.
 - **Approach:** add an accelerated inference path in which conv and dense layers send (weight, activation) pairs to the MAC unit over an AXI-Stream FIFO, while max-pool, flatten and softmax stay in software.
 - **Then:** measure power, performance and area (PPA), and design a variable-precision MAC.
+
+## Where this lab fits
+
+```mermaid
+flowchart LR
+    L1["Lab 1 · Train in TensorFlow"] --> L2["Lab 2 · C++ framework"] --> L3["Lab 3 · MAC units"] --> L4["Lab 4 · Quantization"] --> L5["Lab 5 · Hardware integration"]
+    style L5 fill:#6366F1,color:#ffffff,stroke:#4338CA
+```
+
+## Accelerated layer
+
+```mermaid
+flowchart LR
+    L["Conv or dense layer · C++"] --> K["Pack weight and activation pairs"]
+    K --> F["AXI-Stream FIFO"]
+    F --> M["MAC unit · FPGA"]
+    M --> R["int32 sum"]
+    R --> B["Add bias and zero-point correction"]
+    B --> Q["Dequantize · ReLU · requantize"]
+```
+
+Max-pool, flatten and softmax stay in software.
 
 ## My role
 
