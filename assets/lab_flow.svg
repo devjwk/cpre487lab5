@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 96" role="img" aria-label="Lab 1 to Lab 5, Lab 5 highlighted">
+<title>Where Lab 5 fits</title>
+<style>.a{font:700 15px ui-sans-serif,system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif}.b{font:500 13px ui-sans-serif,system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif}</style>
+<defs><marker id="h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#94A3B8"/></marker></defs>
+<rect x="20.0" y="14" width="200" height="68" fill="#C2410C"/>
+<text x="120.0" y="44.0" text-anchor="middle" class="a" fill="#ffffff">Lab 1</text>
+<text x="120.0" y="64.0" text-anchor="middle" class="b" fill="#ffffff">Train in TensorFlow</text>
+<line x1="223.0" y1="48.0" x2="257.0" y2="48.0" stroke="#94A3B8" stroke-width="2" marker-end="url(#h)"/>
+<rect x="260.0" y="14" width="200" height="68" fill="#C2410C"/>
+<text x="360.0" y="44.0" text-anchor="middle" class="a" fill="#ffffff">Lab 2</text>
+<text x="360.0" y="64.0" text-anchor="middle" class="b" fill="#ffffff">C++ framework</text>
+<line x1="463.0" y1="48.0" x2="497.0" y2="48.0" stroke="#94A3B8" stroke-width="2" marker-end="url(#h)"/>
+<rect x="500.0" y="14" width="200" height="68" fill="#C2410C"/>
+<text x="600.0" y="44.0" text-anchor="middle" class="a" fill="#ffffff">Lab 3</text>
+<text x="600.0" y="64.0" text-anchor="middle" class="b" fill="#ffffff">MAC units</text>
+<line x1="703.0" y1="48.0" x2="737.0" y2="48.0" stroke="#94A3B8" stroke-width="2" marker-end="url(#h)"/>
+<rect x="740.0" y="14" width="200" height="68" fill="#C2410C"/>
+<text x="840.0" y="44.0" text-anchor="middle" class="a" fill="#ffffff">Lab 4</text>
+<text x="840.0" y="64.0" text-anchor="middle" class="b" fill="#ffffff">Quantization</text>
+<line x1="943.0" y1="48.0" x2="977.0" y2="48.0" stroke="#94A3B8" stroke-width="2" marker-end="url(#h)"/>
+<rect x="980.0" y="14" width="200" height="68" fill="#FDBA74"/>
+<text x="1080.0" y="44.0" text-anchor="middle" class="a" fill="#0B1220">Lab 5</text>
+<text x="1080.0" y="64.0" text-anchor="middle" class="b" fill="#0B1220">Hardware integration</text>
+</svg>

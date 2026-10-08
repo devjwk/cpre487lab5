@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 384" role="img" aria-label="Lab 5 at a glance: accelerated path matches, arithmetic per inference, hardware built so far, estimated time on the board">
+<title>Lab 5 at a glance: accelerated path matches, arithmetic per inference, hardware built so far, estimated time on the board</title>
+<style>.q{font:700 12px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:1.5px}.big{font:800 44px ui-sans-serif,system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif}.sub{font:500 14px ui-sans-serif,system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;fill:#475569}.lab{font:500 13px ui-sans-serif,system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;fill:#0B1220}.val{font:700 13px ui-sans-serif,system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;fill:#0B1220}.valbig{font:700 16px ui-sans-serif,system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;fill:#0B1220}.note{font:500 12px ui-sans-serif,system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;fill:#475569}.tiny{font:600 11px ui-sans-serif,system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;fill:#475569}</style>
+<rect width="1200" height="384" fill="#ffffff"/>
+<g transform="translate(0,0)">
+<rect width="285" height="384" fill="#F8FAFC"/>
+<rect width="285" height="6" fill="#C2410C"/>
+<text x="18" y="38" class="q" fill="#C2410C">DOES THE MAC PATH MATCH?</text>
+<text x="18" y="92" class="big" fill="#0B1220">3 / 3</text>
+<text x="18" y="118" class="sub">Bit widths where the accelerated</text>
+<text x="18" y="136" class="sub">path equals the quantized path.</text>
+<g transform="translate(18,170)"><rect x="0" y="2" width="20" height="20" fill="#C2410C"/>
+<text x="30" y="17" class="lab">8-bit: every layer matches</text>
+<rect x="0" y="40" width="20" height="20" fill="#C2410C"/>
+<text x="30" y="55" class="lab">4-bit: every layer matches</text>
+<rect x="0" y="78" width="20" height="20" fill="#C2410C"/>
+<text x="30" y="93" class="lab">2-bit: every layer matches</text>
+<text x="0" y="134" class="note">Checked with the software model of the</text>
+<text x="0" y="152" class="note">MAC, not on the board yet.</text></g></g>
+<g transform="translate(305,0)">
+<rect width="285" height="384" fill="#F8FAFC"/>
+<rect width="285" height="6" fill="#C2410C"/>
+<text x="18" y="38" class="q" fill="#C2410C">HOW MUCH ARITHMETIC?</text>
+<text x="18" y="92" class="big" fill="#0B1220">131.6 M</text>
+<text x="18" y="118" class="sub">Multiply-accumulates for one</text>
+<text x="18" y="136" class="sub">image; conv2 alone is 61%.</text>
+<g transform="translate(18,170)"><text x="0" y="19" class="lab">conv2</text>
+<rect x="52" y="4" width="145" height="22" fill="#E2E8F0"/>
+<rect x="52" y="4" width="129.4" height="22" fill="#FDBA74"/>
+<text x="205" y="20" class="val">80.3 M</text>
+<text x="0" y="57" class="lab">conv4</text>
+<rect x="52" y="42" width="145" height="22" fill="#E2E8F0"/>
+<rect x="52" y="42" width="34.2" height="22" fill="#C2410C"/>
+<text x="205" y="58" class="val">21.2 M</text>
+<text x="0" y="95" class="lab">conv3</text>
+<rect x="52" y="80" width="145" height="22" fill="#E2E8F0"/>
+<rect x="52" y="80" width="20.1" height="22" fill="#C2410C"/>
+<text x="205" y="96" class="val">12.5 M</text>
+<text x="0" y="133" class="lab">conv1</text>
+<rect x="52" y="118" width="145" height="22" fill="#E2E8F0"/>
+<rect x="52" y="118" width="13.9" height="22" fill="#C2410C"/>
+<text x="205" y="134" class="val">8.6 M</text></g></g>
+<g transform="translate(610,0)">
+<rect width="285" height="384" fill="#F8FAFC"/>
+<rect width="285" height="6" fill="#C2410C"/>
+<text x="18" y="38" class="q" fill="#C2410C">WHICH MAC UNITS EXIST?</text>
+<text x="18" y="92" class="big" fill="#0B1220">2 of 6</text>
+<text x="18" y="118" class="sub">The handout asks for staged and</text>
+<text x="18" y="136" class="sub">piped units at 8, 4 and 2 bits.</text>
+<g transform="translate(18,170)"><rect x="0" y="0" width="16" height="16" fill="#C2410C" stroke="#C2410C" stroke-width="2"/>
+<text x="24" y="13" class="lab">staged 8-bit</text>
+<rect x="128" y="0" width="16" height="16" fill="#C2410C" stroke="#C2410C" stroke-width="2"/>
+<text x="152" y="13" class="lab">piped 8-bit</text>
+<rect x="0" y="40" width="16" height="16" fill="none" stroke="#C2410C" stroke-width="2"/>
+<text x="24" y="53" class="lab">staged 4-bit</text>
+<rect x="128" y="40" width="16" height="16" fill="none" stroke="#C2410C" stroke-width="2"/>
+<text x="152" y="53" class="lab">piped 4-bit</text>
+<rect x="0" y="80" width="16" height="16" fill="none" stroke="#C2410C" stroke-width="2"/>
+<text x="24" y="93" class="lab">staged 2-bit</text>
+<rect x="128" y="80" width="16" height="16" fill="none" stroke="#C2410C" stroke-width="2"/>
+<text x="152" y="93" class="lab">piped 2-bit</text>
+<text x="0" y="140" class="note">Filled = built and synthesized (Lab 3).</text></g></g>
+<g transform="translate(915,0)">
+<rect width="285" height="384" fill="#F8FAFC"/>
+<rect width="285" height="6" fill="#C2410C"/>
+<text x="18" y="38" class="q" fill="#C2410C">HOW LONG ON THE BOARD?</text>
+<text x="18" y="92" class="big" fill="#0B1220">≈ 29 s</text>
+<text x="18" y="118" class="sub">Estimate per image, not measured:</text>
+<text x="18" y="136" class="sub">131.6 M MACs at 4.5 M MACs/s.</text>
+<g transform="translate(18,170)"><text x="0" y="19" class="lab">Lab 3 rate</text>
+<rect x="78" y="4" width="119" height="22" fill="#E2E8F0"/>
+<rect x="78" y="4" width="8.9" height="22" fill="#FDBA74"/>
+<text x="205" y="20" class="val">4.5 M/s</text>
+<text x="0" y="57" class="lab">Board CPU</text>
+<rect x="78" y="42" width="119" height="22" fill="#E2E8F0"/>
+<rect x="78" y="42" width="115.0" height="22" fill="#C2410C"/>
+<text x="205" y="58" class="val">58 M/s</text><text x="0" y="98" class="note">MACs per second. Word-at-a-time I/O is</text><text x="0" y="116" class="note">the limit, so a streaming path is needed.</text></g></g>
+</svg>

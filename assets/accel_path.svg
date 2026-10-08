@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 160" role="img" aria-label="Accelerated layer: the layer packs weight and activation pairs, sends them through an AXI-Stream FIFO to the MAC unit, then corrects and finishes the result in software">
+<title>Accelerated layer</title>
+<style>.a{font:700 14px ui-sans-serif,system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif}.b{font:500 11.5px ui-sans-serif,system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif}.n{font:500 13px ui-sans-serif,system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;fill:#334155}</style>
+<defs><marker id="h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#475569"/></marker></defs>
+<rect x="17.0" y="56" width="176" height="68" fill="#C2410C"/>
+<text x="105.0" y="86.0" text-anchor="middle" class="a" fill="#ffffff">Conv or dense layer</text>
+<text x="105.0" y="105.0" text-anchor="middle" class="b" fill="#ffffff">C++ on the ARM core</text>
+<line x1="195.0" y1="90.0" x2="213.0" y2="90.0" stroke="#475569" stroke-width="2" marker-end="url(#h)"/>
+<rect x="215.0" y="56" width="176" height="68" fill="#C2410C"/>
+<text x="303.0" y="86.0" text-anchor="middle" class="a" fill="#ffffff">Pack pairs</text>
+<text x="303.0" y="105.0" text-anchor="middle" class="b" fill="#ffffff">weight and activation</text>
+<line x1="393.0" y1="90.0" x2="411.0" y2="90.0" stroke="#475569" stroke-width="2" marker-end="url(#h)"/>
+<rect x="413.0" y="56" width="176" height="68" fill="#FDBA74"/>
+<text x="501.0" y="86.0" text-anchor="middle" class="a" fill="#0B1220">AXI-Stream FIFO</text>
+<text x="501.0" y="105.0" text-anchor="middle" class="b" fill="#0B1220">one word per pair</text>
+<line x1="591.0" y1="90.0" x2="609.0" y2="90.0" stroke="#475569" stroke-width="2" marker-end="url(#h)"/>
+<rect x="611.0" y="56" width="176" height="68" fill="#FDBA74"/>
+<text x="699.0" y="86.0" text-anchor="middle" class="a" fill="#0B1220">MAC unit</text>
+<text x="699.0" y="105.0" text-anchor="middle" class="b" fill="#0B1220">FPGA, returns int32 sum</text>
+<line x1="789.0" y1="90.0" x2="807.0" y2="90.0" stroke="#475569" stroke-width="2" marker-end="url(#h)"/>
+<rect x="809.0" y="56" width="176" height="68" fill="#C2410C"/>
+<text x="897.0" y="86.0" text-anchor="middle" class="a" fill="#ffffff">Correct</text>
+<text x="897.0" y="105.0" text-anchor="middle" class="b" fill="#ffffff">add bias, zero-point term</text>
+<line x1="987.0" y1="90.0" x2="1005.0" y2="90.0" stroke="#475569" stroke-width="2" marker-end="url(#h)"/>
+<rect x="1007.0" y="56" width="176" height="68" fill="#C2410C"/>
+<text x="1095.0" y="86.0" text-anchor="middle" class="a" fill="#ffffff">Finish</text>
+<text x="1095.0" y="105.0" text-anchor="middle" class="b" fill="#ffffff">dequantize, ReLU, requant.</text>
+<text x="204.0" y="38" text-anchor="middle" class="n">software</text>
+<text x="600.0" y="38" text-anchor="middle" class="n">hardware</text>
+<text x="996.0" y="38" text-anchor="middle" class="n">software</text>
+<text x="600" y="150" text-anchor="middle" class="n">Max-pool, flatten and softmax stay entirely in software.</text>
+</svg>
