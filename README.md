@@ -29,7 +29,7 @@ Iowa State University · CprE 487/587 · Lab 5 · Team 06
 | Team | 2 — Zach Dixon, Jongwoo Kim |
 | My role | Software integration (`computeAccelerated`) |
 | Stack | C++, VHDL, Vivado/Vitis 2020.1, ZedBoard (Zynq-7000) |
-| Earlier labs | [Lab 4 — quantization](https://github.com/devjwk/cpre487lab4), [Lab 3 — MAC units](https://github.com/devjwk/487lab3), [Lab 2 — C++ framework](https://github.com/devjwk/cpre487lab2) |
+| Earlier labs | [Lab 4 — quantization](https://github.com/devjwk/cpre487lab4), [Lab 3 — MAC units](https://github.com/devjwk/cpre487lab3), [Lab 2 — C++ framework](https://github.com/devjwk/cpre487lab2) |
 
 ## Overview
 
