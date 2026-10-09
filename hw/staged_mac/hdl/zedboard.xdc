@@ -373,5 +373,5 @@ set_property IOSTANDARD LVCMOS18 [get_ports -of_objects [get_iobanks 35]];
 # Note that the bank voltage for IO Bank 13 is fixed to 3.3V on ZedBoard.
 set_property IOSTANDARD LVCMOS33 [get_ports -of_objects [get_iobanks 13]];
 
-create_clock -period 5.00 -name main -waveform {0.000 0.050} [get_ports ACLK]
+create_clock -period 5.00 -name main -waveform {0.000 2.500} [get_ports ACLK]
 

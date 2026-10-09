@@ -112,7 +112,7 @@ On 200 validation images at 8 bits, the MAC path and the plain quantized path gi
 
 - Whole-model inference through the MAC unit matches the quantized results in the software model, but has not been run on the board.
 - Data is sent one word at a time through memory-mapped I/O. In Lab 3 this reached about 4.5 M MACs/s, slower than the board's CPU, so a streaming (DMA) path is needed for a real speed-up.
-- Both timing reports flag pulse-width violations on the test clock constraint, which need to be resolved.
+- The saved 8-bit timing reports flag pulse-width violations. The cause was the test clock constraint (a 50 ps high time) and is fixed in `zedboard.xdc`; the reports still have to be regenerated.
 - Still to do: 4-bit and 2-bit MAC variants, PPA and energy-per-inference analysis, and the variable-precision MAC.
 
 ## Repository layout

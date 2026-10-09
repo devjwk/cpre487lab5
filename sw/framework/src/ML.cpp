@@ -348,8 +348,13 @@ void runAcceleratedCheck(const Model& model, const Path& basePath) {
     // Reference: software path, keep a copy of every layer output
     std::vector<LayerData> reference;
     const LayerData* cur = &img;
+    std::vector<fp32> naiveMs(numLayers);
     for (std::size_t i = 0; i < numLayers; i++) {
+        Timer timer("Layer_" + std::to_string(i) + "_naive");
+        timer.start();
         cur = &model.inferenceLayer(*cur, i, Layer::InfType::NAIVE);
+        timer.stop();
+        naiveMs[i] = timer.milliseconds;
         reference.push_back(*cur);
     }
 
@@ -358,17 +363,22 @@ void runAcceleratedCheck(const Model& model, const Path& basePath) {
     cur = &img;
     for (std::size_t i = 0; i < numLayers; i++) {
         const MacStats before = macStats();
+        Timer timer("Layer_" + std::to_string(i) + "_mac");
+        timer.start();
         cur = &model.inferenceLayer(*cur, i, Layer::InfType::ACCELERATED);
+        timer.stop();
         const bool match = std::memcmp(cur->raw(), reference[i].raw(), cur->getParams().byte_size()) == 0;
         allMatch = allMatch && match;
         std::cout << "Layer " << i << " " << layerName(model[i].getLType()) << ": " << (match ? "MATCH" : "MISMATCH")
-                  << ", MAC ops " << (macStats().ops - before.ops) << ", packets " << (macStats().packets - before.packets) << std::endl;
+                  << ", MAC ops " << (macStats().ops - before.ops) << ", packets " << (macStats().packets - before.packets)
+                  << ", software " << naiveMs[i] << " ms, MAC unit " << timer.milliseconds << " ms" << std::endl;
     }
     std::cout << "Total: " << macStats().ops << " MAC ops in " << macStats().packets << " packets ("
               << MAC_BITS << "-bit operands, up to " << MAC_MAX_GROUP << " pairs per packet) -> "
               << (allMatch ? "ALL LAYERS MATCH" : "MISMATCH FOUND") << std::endl;
 }
 
+#ifndef ZEDBOARD
 // Lab 4 Sections 5.1 / 6: top-1 / top-10 accuracy and latency over the exported validation images
 // (data/val/val_images_u8.bin: N x 64x64x3 uint8, val_labels_i32.bin: N int32). Run with `./build/ml val [N]`.
 void runValidation(std::size_t numImages, Layer::InfType infType = Layer::InfType::NAIVE) {
@@ -417,6 +427,7 @@ void runValidation(std::size_t numImages, Layer::InfType infType = Layer::InfTyp
               << "Latency per image: avg " << totalMs / done << " ms, min " << minMs << " ms, max " << maxMs << " ms\n";
     model.freeLayers();
 }
+#endif
 
 void runTests() {
     // Base input data path (determined from current directory of where you are running the command)

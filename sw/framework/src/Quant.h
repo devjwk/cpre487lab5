@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <fstream>
+#include <sstream>
 #include <stdexcept>
 #include <vector>
 
@@ -42,8 +43,20 @@ inline fp32 dequantize(i32 q, fp32 scale, i32 zero) { return (q - zero) / scale;
 // Read "<layer> <inScale> <inZero> <wScale>" lines (one per conv/dense layer, in model order) and chain
 // each layer's output parameters to the next layer's input parameters. The last layer outputs fp32.
 inline std::vector<QuantParams> loadQuantParams(const Path& file) {
+#ifdef ZEDBOARD
+    // No std::ifstream on the board: read the whole text file from the SD card, then parse it the same way
+    FIL fil;
+    if (f_open(&fil, file.c_str(), FA_OPEN_EXISTING | FA_READ) != FR_OK) throw std::runtime_error("Failed to open quantization params: " + file);
+    std::string text(f_size(&fil), '\0');
+    UINT bytesRead = 0;
+    const FRESULT res = f_read(&fil, &text[0], text.size(), &bytesRead);
+    f_close(&fil);
+    if (res != FR_OK || bytesRead != text.size()) throw std::runtime_error("Failed to read quantization params: " + file);
+    std::istringstream in(text);
+#else
     std::ifstream in(file);
     if (!in.is_open()) throw std::runtime_error("Failed to open quantization params: " + file);
+#endif
 
     std::vector<QuantParams> params;
     std::string name;

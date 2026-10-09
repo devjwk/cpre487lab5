@@ -8,6 +8,7 @@ set option {
   {hwproject_name.arg ""                        "hardware project name"}
   {proc_name.arg      "ps7_cortexa9_0"          "prorcessor name"}
   {template.arg       "Empty Application (C++)" "application project template"}
+  {quant_bits.arg     "8"                       "QUANT_BITS of the build: 8, 4 or 2 (must match the MAC width in the XSA)"}
   {prepare_debug.arg  "no"                      "(flash) prepare for debugging instead of flashing"}
 }
 
