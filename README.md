@@ -101,19 +101,18 @@ On 200 validation images at 8 bits, the MAC path and the plain quantized path gi
 | Handout item | Status |
 |---|---|
 | 3.1, 3.2 New inference type; `computeAccelerated` in every layer | done |
-| 3.3 4-bit and 2-bit versions of both MAC units (6 in total), with XSA files and reports | not started; only the two 8-bit units exist |
-| 3.4 Full inference through the MAC units, matching the quantized results | software model: done · on the board: not run |
-| 4 Power, performance and area for all MAC units | not started |
+| 3.3 4-bit and 2-bit versions of both MAC units (6 in total), with XSA files and reports | done (`hw/xsa`, reports next to each unit) |
+| 3.4 Full inference through the MAC units, matching the quantized results | done: all six units match on the ZedBoard (`util/board_logs`) |
+| 4 Power, performance and area for all MAC units | measured (`util/lab5_06.ipynb`); report not written |
 | 5 Variable-precision MAC | not started |
 | 6 Demo spreadsheet | not started |
 | 8 Report and submission archive | not started |
 
 ## Limitations and next steps
 
-- Whole-model inference through the MAC unit matches the quantized results in the software model, but has not been run on the board.
-- Data is sent one word at a time through memory-mapped I/O. In Lab 3 this reached about 4.5 M MACs/s, slower than the board's CPU, so a streaming (DMA) path is needed for a real speed-up.
-- The saved 8-bit timing reports flag pulse-width violations. The cause was the test clock constraint (a 50 ps high time) and is fixed in `zedboard.xdc`; the reports still have to be regenerated.
-- Still to do: 4-bit and 2-bit MAC variants, PPA and energy-per-inference analysis, and the variable-precision MAC.
+- On the board, one inference through the MAC unit takes about 29 s against 1.35 s for the same quantized model on the ARM core alone.
+- Data is sent one word at a time through memory-mapped I/O. This reaches about 4.5 M MACs/s for every unit, slower than the board's CPU, so a streaming (DMA) path is needed for a real speed-up.
+- Still to do: the written PPA analysis and the variable-precision MAC.
 
 ## Repository layout
 
