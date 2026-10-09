@@ -12,7 +12,7 @@
 <line x1="393.0" y1="90.0" x2="411.0" y2="90.0" stroke="#475569" stroke-width="2" marker-end="url(#h)"/>
 <rect x="413.0" y="56" width="176" height="68" fill="#FDBA74"/>
 <text x="501.0" y="86.0" text-anchor="middle" class="a" fill="#0B1220">AXI-Stream FIFO</text>
-<text x="501.0" y="105.0" text-anchor="middle" class="b" fill="#0B1220">one word per pair</text>
+<text x="501.0" y="105.0" text-anchor="middle" class="b" fill="#0B1220">fixed 1 pair · variable 2 / 4 / 8</text>
 <line x1="591.0" y1="90.0" x2="609.0" y2="90.0" stroke="#475569" stroke-width="2" marker-end="url(#h)"/>
 <rect x="611.0" y="56" width="176" height="68" fill="#FDBA74"/>
 <text x="699.0" y="86.0" text-anchor="middle" class="a" fill="#0B1220">MAC unit</text>
