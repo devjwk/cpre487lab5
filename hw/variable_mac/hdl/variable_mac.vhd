@@ -12,8 +12,8 @@
 --     4 bit : 4 multiply-accumulates per word
 --     2 bit : 8 multiply-accumulates per word
 -- Field i of the weights is multiplied by field i of the activations
--- (field 0 = least significant bits) and all products of a word are
--- added to the accumulator in the same cycle.
+-- (field 0 = least significant bits). Partial sums pass through a
+-- registered adder tree before they reach the accumulator.
 --
 -- The multiplier is built from 2-bit x 2-bit bricks. Each half of the
 -- word has 16 bricks: at 8 bit they are shifted and added into one 8x8
@@ -58,16 +58,17 @@ end variable_mac;
 
 architecture behavioral of variable_mac is
 
-    -- Sum of the products of one 8-bit weight half and one 8-bit activation half.
-    -- mode "00": one 8x8 product, "01": two 4x4 products, others: four 2x2 products.
-    function fuse(w, a : std_logic_vector(7 downto 0); mode : std_logic_vector(1 downto 0)) return signed is
+    -- One row of the 2-bit multiplier bricks. Each row has four possible
+    -- products; registering rows prevents a 16-product serial adder chain.
+    function fuse_row(w, a : std_logic_vector(7 downto 0);
+                      mode : std_logic_vector(1 downto 0);
+                      i : natural) return signed is
         variable ws, as2 : signed(2 downto 0);   -- one 2-bit segment, extended to 3 bits
         variable sum     : signed(15 downto 0) := (others => '0');
         variable used, top_i, top_j : boolean;
         variable sh      : natural;
     begin
-        for i in 0 to 3 loop
-            for j in 0 to 3 loop
+        for j in 0 to 3 loop
                 -- Which bricks belong to the same operand pair, which segment holds the sign bit of its
                 -- operand, and where the brick's product sits in the result
                 case mode is
@@ -88,7 +89,6 @@ architecture behavioral of variable_mac is
                 if used then
                     sum := sum + shift_left(resize(ws * as2, 16), sh);  -- 2x2 brick
                 end if;
-            end loop;
         end loop;
         return sum;
     end function;
@@ -100,11 +100,29 @@ architecture behavioral of variable_mac is
     signal s0_header : std_logic;
     signal s0_tid    : std_logic_vector(7 downto 0);
 
-    -- Stage 1 -> 2 (sum of the products of one word)
+    type row_array is array (0 to 7) of signed(15 downto 0);
+    type pair_array is array (0 to 3) of signed(16 downto 0);
+    type group_array is array (0 to 1) of signed(17 downto 0);
+
+    -- Stage 1: eight registered partial products (four per byte pair)
     signal s1_valid : std_logic;
-    signal s1_sum   : signed(17 downto 0);
+    signal s1_rows  : row_array;
     signal s1_last  : std_logic;
     signal s1_tid   : std_logic_vector(7 downto 0);
+
+    -- Stages 2 and 3: balanced, registered adder tree
+    signal s2_valid : std_logic;
+    signal s2_pairs : pair_array;
+    signal s2_last  : std_logic;
+    signal s2_tid   : std_logic_vector(7 downto 0);
+    signal s3_valid  : std_logic;
+    signal s3_groups : group_array;
+    signal s3_last   : std_logic;
+    signal s3_tid    : std_logic_vector(7 downto 0);
+    signal s4_valid : std_logic;
+    signal s4_sum   : signed(18 downto 0);
+    signal s4_last  : std_logic;
+    signal s4_tid   : std_logic_vector(7 downto 0);
 
     signal expect_header : std_logic;                     -- the next word starts a packet
     signal mode          : std_logic_vector(1 downto 0);  -- operand width of the current packet
@@ -126,6 +144,9 @@ begin
             if ARESETN = '0' then
                 s0_valid      <= '0';
                 s1_valid      <= '0';
+                s2_valid      <= '0';
+                s3_valid      <= '0';
+                s4_valid      <= '0';
                 expect_header <= '1';
                 mode          <= "00";
                 acc           <= (others => '0');
@@ -144,27 +165,50 @@ begin
                     expect_header <= SD_AXIS_TLAST;
                 end if;
 
-                -- Stage 1: the header sets the width, a data word is multiplied
+                -- Stage 1: the header sets the width; data words produce rows
                 s1_valid <= s0_valid;
                 s1_last  <= s0_last;
                 s1_tid   <= s0_tid;
                 if s0_valid = '1' then
                     if s0_header = '1' then
                         mode   <= s0_data(1 downto 0);
-                        s1_sum <= (others => '0');
+                        s1_rows <= (others => (others => '0'));
                     else
-                        s1_sum <= resize(fuse(s0_data(31 downto 24), s0_data(15 downto 8), mode), 18)
-                                + resize(fuse(s0_data(23 downto 16), s0_data(7 downto 0), mode), 18);
+                        for i in 0 to 3 loop
+                            s1_rows(i) <= fuse_row(s0_data(31 downto 24), s0_data(15 downto 8), mode, i);
+                            s1_rows(i + 4) <= fuse_row(s0_data(23 downto 16), s0_data(7 downto 0), mode, i);
+                        end loop;
                     end if;
                 end if;
 
-                -- Stage 2: accumulate, and send the sum after the last word
+                -- Stages 2 and 3: add independent rows in a balanced tree
+                s2_valid <= s1_valid;
+                s2_last <= s1_last;
+                s2_tid <= s1_tid;
+                for i in 0 to 3 loop
+                    s2_pairs(i) <= resize(s1_rows(2 * i), 17) + resize(s1_rows(2 * i + 1), 17);
+                end loop;
+
+                s3_valid <= s2_valid;
+                s3_last <= s2_last;
+                s3_tid <= s2_tid;
+                for i in 0 to 1 loop
+                    s3_groups(i) <= resize(s2_pairs(2 * i), 18) + resize(s2_pairs(2 * i + 1), 18);
+                end loop;
+
+                -- Stage 4: finish the sum of this word
+                s4_valid <= s3_valid;
+                s4_last <= s3_last;
+                s4_tid <= s3_tid;
+                s4_sum <= resize(s3_groups(0), 19) + resize(s3_groups(1), 19);
+
+                -- Stage 5: accumulate and return one result per packet
                 mo_valid <= '0';
-                if s1_valid = '1' then
-                    total := acc + resize(s1_sum, 32);
-                    if s1_last = '1' then
+                if s4_valid = '1' then
+                    total := acc + resize(s4_sum, 32);
+                    if s4_last = '1' then
                         MO_AXIS_TDATA <= std_logic_vector(total);
-                        MO_AXIS_TID   <= s1_tid;
+                        MO_AXIS_TID   <= s4_tid;
                         mo_valid      <= '1';
                         acc           <= (others => '0');
                     else
