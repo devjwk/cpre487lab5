@@ -1,0 +1,193 @@
+make: Entering directory '/home/jwk0425/jwk_personal_lab/lab5/sw/framework/workspace/staged8/sw_test/Debug'
+make: 'sw_test.elf' is up to date.
+make: Leaving directory '/home/jwk0425/jwk_personal_lab/lab5/sw/framework/workspace/staged8/sw_test/Debug'
+Connecting to hardware server
+No hardware server running, starting a local hardware server instead
+attempting to launch hw_server
+
+****** Xilinx hw_server v2020.1
+  **** Build date : May 27 2020 at 20:33:44
+    ** Copyright 1986-2020 Xilinx, Inc. All Rights Reserved.
+
+INFO: hw_server application started
+INFO: Use Ctrl-C to exit hw_server application
+
+INFO: To connect to this hw_server instance use url: TCP:127.0.0.1:3121
+
+Flashing fpga
+INFO: [Hsi 55-2053] elapsed time for repository (/remote/Xilinx/2020.1/Vitis/2020.1/data/embeddedsw) loading 0 seconds
+Done
+Reading from UART, press Ctrl-C to stop
+[[36mInfo[39m]: --- Building Toy Model ---
+xsdb% [[36mInfo[39m]: Quantized model: 8 bit, loading data/model/q8
+xsdb% Opened binary file data/model/q8/conv1_weights.bin
+xsdb% Opened binary file data/model/q8/conv1_biases.bin
+xsdb% Opened binary file data/model/q8/conv2_weights.bin
+xsdb% Opened binary file data/model/q8/conv2_biases.bin
+xsdb% Opened binary file data/model/q8/conv3_weights.bin
+xsdb% Opened binary file data/model/q8/conv3_biases.bin
+xsdb% Opened binary file data/model/q8/conv4_weights.bin
+xsdb% Opened binary file data/model/q8/conv4_biases.bin
+xsdb% Opened binary file data/model/q8/conv5_weights.bin
+xsdb% Opened binary file data/model/q8/conv5_biases.bin
+xsdb% Opened binary file data/model/q8/conv6_weights.bin
+xsdb% Opened binary file data/model/q8/conv6_biases.bin
+xsdb% Opened binary file data/model/q8/dense1_weights.bin
+xsdb% Opened binary file data/model/q8/dense1_biases.bin
+xsdb% Opened binary file data/model/q8/dense2_weights.bin
+xsdb% Opened binary file data/model/q8/dense2_biases.bin
+xsdb% [[36mInfo[39m]: --- Running Basic Test ---
+xsdb% Opened binary file ./data/image_0.bin
+xsdb% Comparing image 0 to itself (max error): 1
+xsdb% Comparing image 0 to itself (T/F within epsilon 0.001): false
+
+Change a value by 0.1 and compare again
+xsdb% Element-wise Maximum Error:  (0.1)
+xsdb% Comparing Outputs (Cosine Similarity): True 99.9993%  (0.999993)
+Change a value by 0.1 and compare again...
+xsdb% Element-wise Maximum Error:  (0.2)
+xsdb% Comparing Outputs (Cosine Similarity): True 99.9981%  (0.999981)
+[[36mInfo[39m]: --- Quantized vs fp32 reference (image_0, per layer) ---
+xsdb% Opened binary file data/image_0.bin
+xsdb% Opened binary file data/image_0_data/layer_0_output.bin
+xsdb% Layer 0 Convolutional: max error 0.0203158, cosine similarity 0.995731
+  DE Quantized value: 0.105614
+  Original value:     0.101601
+  DE Quantized value: 0.237631
+  Original value:     0.235907
+  DE Quantized value: 0.250832
+  Original value:     0.244445
+  DE Quantized value: 0
+  Original value:     0.000566754
+  DE Quantized value: 0.092412
+  Original value:     0.0805964
+xsdb% Opened binary file data/image_0_data/layer_1_output.bin
+xsdb% Layer 1 Convolutional: max error 0.0430197, cosine similarity 0.999351
+xsdb% Opened binary file data/image_0_data/layer_2_output.bin
+xsdb% Layer 2 MaxPooling: max error 0.0430197, cosine similarity 0.999156
+xsdb% Opened binary file data/image_0_data/layer_3_output.bin
+xsdb% Layer 3 Convolutional: max error 0.0486395, cosine similarity 0.998727
+xsdb% Opened binary file data/image_0_data/layer_4_output.bin
+xsdb% Layer 4 Convolutional: max error 0.0663402, cosine similarity 0.990847
+xsdb% Opened binary file data/image_0_data/layer_5_output.bin
+xsdb% Layer 5 MaxPooling: max error 0.0663402, cosine similarity 0.992977
+xsdb% Opened binary file data/image_0_data/layer_6_output.bin
+xsdb% Layer 6 Convolutional: max error 0.102608, cosine similarity 0.989816
+xsdb% Opened binary file data/image_0_data/layer_7_output.bin
+xsdb% Layer 7 Convolutional: max error 0.13783, cosine similarity 0.98748
+xsdb% Opened binary file data/image_0_data/layer_8_output.bin
+xsdb% Layer 8 MaxPooling: max error 0.13783, cosine similarity 0.988538
+xsdb% Opened binary file data/image_0_data/layer_9_output.bin
+xsdb% Layer 9 Flatten: max error 0.13783, cosine similarity 0.988538
+xsdb% Opened binary file data/image_0_data/layer_10_output.bin
+xsdb% Layer 10 Dense: max error 0.285298, cosine similarity 0.994821
+xsdb% Opened binary file data/image_0_data/layer_11_output.bin
+xsdb% Layer 12 SoftMax: max error 0.0419948, cosine similarity 0.888773
+[[36mInfo[39m]: --- Top-1 class: quantized vs fp32 reference ---
+xsdb% Opened binary file data/image_0.bin
+xsdb% Opened binary file data/image_0_data/layer_11_output.bin
+xsdb% image_0: quantized top-1 = 163 (p=0.188184), fp32 top-1 = 163 (p=0.14619)  MATCH
+xsdb% Opened binary file data/image_1.bin
+xsdb% Opened binary file data/image_1_data/layer_11_output.bin
+xsdb% image_1: quantized top-1 = 160 (p=0.0678728), fp32 top-1 = 160 (p=0.06861)  MATCH
+xsdb% Opened binary file data/image_2.bin
+xsdb% Opened binary file data/image_2_data/layer_11_output.bin
+xsdb% image_2: quantized top-1 = 40 (p=0.150726), fp32 top-1 = 40 (p=0.143823)  MATCH
+[[36mInfo[39m]: --- MAC unit (ACCELERATED) vs software quantized (NAIVE), image_0 ---
+xsdb% Opened binary file data/image_0.bin
+xsdb% Timer Layer_0_naive: elapsed=119.000000ms
+xsdb% Timer Layer_1_naive: elapsed=674.000000ms
+xsdb% Timer Layer_2_naive: elapsed=0.000000ms
+xsdb% Timer Layer_3_naive: elapsed=102.000000ms
+xsdb% Timer Layer_4_naive: elapsed=287.000000ms
+xsdb% Timer Layer_5_naive: elapsed=0.000000ms
+xsdb% Timer Layer_6_naive: elapsed=49.000000ms
+xsdb% Timer Layer_7_naive: elapsed=109.000000ms
+xsdb% Timer Layer_8_naive: elapsed=0.000000ms
+xsdb% Timer Layer_9_naive: elapsed=0.000000ms
+xsdb% Timer Layer_10_naive: elapsed=13.000000ms
+xsdb% Timer Layer_11_naive: elapsed=0.000000ms
+xsdb% Timer Layer_12_naive: elapsed=0.000000ms
+xsdb% Timer Layer_0_mac: elapsed=1973.000000ms
+xsdb% Layer 0 Convolutional: MATCH, MAC ops 8640000, packets 115200, software 119 ms, MAC unit 1973 ms
+xsdb% Timer Layer_1_mac: elapsed=17660.000000ms
+xsdb% Layer 1 Convolutional: MATCH, MAC ops 80281600, packets 401408, software 674 ms, MAC unit 17660 ms
+xsdb% Timer Layer_2_mac: elapsed=0.000000ms
+xsdb% Layer 2 MaxPooling: MATCH, MAC ops 0, packets 0, software 0 ms, MAC unit 0 ms
+xsdb% Timer Layer_3_mac: elapsed=2762.000000ms
+xsdb% Layer 3 Convolutional: MATCH, MAC ops 12460032, packets 86528, software 102 ms, MAC unit 2762 ms
+xsdb% Timer Layer_4_mac: elapsed=4682.000000ms
+xsdb% Layer 4 Convolutional: MATCH, MAC ops 21233664, packets 110592, software 287 ms, MAC unit 4682 ms
+xsdb% Timer Layer_5_mac: elapsed=0.000000ms
+xsdb% Layer 5 MaxPooling: MATCH, MAC ops 0, packets 0, software 0 ms, MAC unit 0 ms
+xsdb% Timer Layer_6_mac: elapsed=813.000000ms
+xsdb% Layer 6 Convolutional: MATCH, MAC ops 3686400, packets 19200, software 49 ms, MAC unit 813 ms
+xsdb% Timer Layer_7_mac: elapsed=1045.000000ms
+xsdb% Layer 7 Convolutional: MATCH, MAC ops 4718592, packets 24576, software 109 ms, MAC unit 1045 ms
+Timer Layer_8_mac: elapsed=0.000000ms
+Layer 8 MaxPooling: MATCH, MAC ops 0, packets 0, software 0 ms, MAC unit 0 ms
+Timer Layer_9_mac: elapsed=0.000000ms
+Layer 9 Flatten: MATCH, MAC ops 0, packets 0, software 0 ms, MAC unit 0 ms
+xsdb% Timer Layer_10_mac: elapsed=127.000000ms
+Layer 10 Dense: MATCH, MAC ops 524288, packets 2048, software 13 ms, MAC unit 127 ms
+xsdb% Timer Layer_11_mac: elapsed=11.000000ms
+Layer 11 Dense: MATCH, MAC ops 51200, packets 200, software 0 ms, MAC unit 11 ms
+xsdb% Timer Layer_12_mac: elapsed=0.000000ms
+Layer 12 SoftMax: MATCH, MAC ops 0, packets 0, software 0 ms, MAC unit 0 ms
+Total: 131595776 MAC ops in 759752 packets (8-bit operands, up to 256 pairs per packet) -> ALL LAYERS MATCH
+[[36mInfo[39m]: --- Running Inference Test ---
+xsdb% Opened binary file data/image_0.bin
+xsdb% Timer Full Inference: elapsed=1360.000000ms
+xsdb% Opened binary file data/image_0_data/layer_11_output.bin
+xsdb% Element-wise Maximum Error:  (0.0419948)
+Comparing Outputs (Cosine Similarity): True 88.8773%  (0.888773)
+[[36mInfo[39m]: Starting Inference Tests
+xsdb% Opened binary file data/image_0.bin
+xsdb% Timer Layer_0_Convolutional: elapsed=119.000000ms
+xsdb% Timer Layer_1_Convolutional: elapsed=672.000000ms
+xsdb% Timer Layer_2_MaxPooling: elapsed=0.000000ms
+xsdb% Timer Layer_3_Convolutional: elapsed=102.000000ms
+xsdb% Timer Layer_4_Convolutional: elapsed=286.000000ms
+xsdb% Timer Layer_5_MaxPooling: elapsed=0.000000ms
+xsdb% Timer Layer_6_Convolutional: elapsed=49.000000ms
+xsdb% Timer Layer_7_Convolutional: elapsed=109.000000ms
+xsdb% Timer Layer_8_MaxPooling: elapsed=0.000000ms
+Timer Layer_9_Flatten: elapsed=0.000000ms
+xsdb% Timer Layer_10_Dense: elapsed=13.000000ms
+xsdb% Timer Layer_11_Dense: elapsed=0.000000ms
+xsdb% Timer Layer_12_SoftMax: elapsed=0.000000ms
+[[36mInfo[39m]: Layer Timing Breakdown
+[[36mInfo[39m]: Convolutional Layer (0119.000000 ms) 8.814815% of total time
+[[36mInfo[39m]: Convolutional Layer (1672.000000 ms) 49.777779% of total time
+[[36mInfo[39m]: MaxPooling Layer (20.000000 ms) 0.000000% of total time
+[[36mInfo[39m]: Convolutional Layer (3102.000000 ms) 7.555555% of total time
+[[36mInfo[39m]: Convolutional Layer (4286.000000 ms) 21.185184% of total time
+[[36mInfo[39m]: MaxPooling Layer (50.000000 ms) 0.000000% of total time
+[[36mInfo[39m]: Convolutional Layer (649.000000 ms) 3.629630% of total time
+[[36mInfo[39m]: Convolutional Layer (7109.000000 ms) 8.074074% of total time
+[[36mInfo[39m]: MaxPooling Layer (80.000000 ms) 0.000000% of total time
+[[36mInfo[39m]: Flatten Layer (90.000000 ms) 0.000000% of total time
+[[36mInfo[39m]: Dense Layer (1013.000000 ms) 0.962963% of total time
+[[36mInfo[39m]: Dense Layer (110.000000 ms) 0.000000% of total time
+[[36mInfo[39m]: SoftMax Layer (120.000000 ms) 0.000000% of total time
+[[36mInfo[39m]: Total inference time: 1350.000000ms
+xsdb% Opened binary file data/image_0_data/layer_11_output.bin
+xsdb% Element-wise Maximum Error:  (0.0419948)
+Comparing Outputs (Cosine Similarity): True 88.8773%  (0.888773)
+[[36mInfo[39m]: Completed Layer timings
+
+
+----- ML::runTests() COMPLETE -----
+
+
+----- STARTING FILE TRANSFER SERVER -----
+IP:      192.168.1.2
+Netmask: 255.255.255.0
+Gateway: 192.168.1.1
+MAC:     00:0A:35:00:01:02
+xsdb% Start PHY autonegotiation 
+xsdb% Waiting for PHY to complete autonegotiation.
+xsdb% autonegotiation complete 
+xsdb% link speed for phy address 0: 1000
+xsdb% HTTP file server started!
+xsdb% 
