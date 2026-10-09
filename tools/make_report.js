@@ -1,20 +1,21 @@
 // Builds the Word report: (npm install docx) then node tools/make_report.js lab5_report_06.docx
 const fs = require("fs");
 const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, ShadingType, BorderStyle,
-        HeadingLevel, LevelFormat, AlignmentType } = require("docx");
+        HeadingLevel, LevelFormat, AlignmentType, Header, Footer, PageNumber } = require("docx");
 
-const W = 9360;  // text width of US Letter with 1" margins
-const FONT = "Calibri";
+const W = 10034;  // A4 width minus 0.65-inch side margins
+const FONT = "Arial";
+const SERIF = "Georgia";
 // `code` spans are written with backticks in the strings below
-const runs = (s, base = {}) => s.split("`").map((t, i) => new TextRun({ text: t, ...base, ...(i % 2 ? { font: "Consolas", size: 20 } : {}) }));
-const P = (s, o = {}) => new Paragraph({ spacing: { after: 140 }, children: runs(s), ...o });
+const runs = (s, base = {}) => s.split("`").map((t, i) => new TextRun({ text: t, ...base, ...(i % 2 ? { font: "Consolas", size: 19, shading: { type: ShadingType.CLEAR, fill: "F1F0ED", color: "auto" } } : {}) }));
+const P = (s, o = {}) => new Paragraph({ spacing: { after: 130, line: 310 }, children: runs(s), ...o });
 // Lab 1 style: a bold question followed by the answer in the same paragraph
-const Q = (q, a) => new Paragraph({ spacing: { after: 140 }, children: [new TextRun({ text: q + " ", bold: true }), ...runs(a)] });
-const H1 = s => new Paragraph({ heading: HeadingLevel.HEADING_1, spacing: { before: 320, after: 140 }, children: [new TextRun(s)] });
-const H2 = (s, pageBreakBefore = false) => new Paragraph({ heading: HeadingLevel.HEADING_2, pageBreakBefore, spacing: { before: 220, after: 100 }, children: [new TextRun(s)] });
+const Q = (q, a) => new Paragraph({ spacing: { after: 140, line: 310 }, children: [new TextRun({ text: q + " ", bold: true }), ...runs(a)] });
+const H1 = s => new Paragraph({ heading: HeadingLevel.HEADING_1, spacing: { before: 330, after: 120 }, children: [new TextRun(s)] });
+const H2 = (s, pageBreakBefore = false) => new Paragraph({ heading: HeadingLevel.HEADING_2, pageBreakBefore, spacing: { before: 260, after: 100 }, children: [new TextRun(s)] });
 const B = s => new Paragraph({ numbering: { reference: "b", level: 0 }, spacing: { after: 60 }, children: runs(s) });
-const CAP = (n, s) => new Paragraph({ spacing: { before: 80, after: 200 }, children: [new TextRun({ text: `Table ${n}. `, bold: true }), ...runs(s)] });
-const border = { style: BorderStyle.SINGLE, size: 4, color: "D9D6CE" };
+const CAP = (n, s) => new Paragraph({ spacing: { before: 80, after: 190 }, children: [new TextRun({ text: `Table ${n}. `, bold: true }), ...runs(s)] });
+const border = { style: BorderStyle.SINGLE, size: 3, color: "E3DFD8" };
 const borders = { top: border, bottom: border, left: border, right: border };
 function T(widths, rows) {
   const scale = W / widths.reduce((a, b) => a + b, 0);
@@ -22,9 +23,9 @@ function T(widths, rows) {
   return new Table({ width: { size: W, type: WidthType.DXA }, columnWidths: cw,
     rows: rows.map((r, ri) => new TableRow({ tableHeader: ri === 0, children: r.map((c, ci) => new TableCell({
       width: { size: cw[ci], type: WidthType.DXA }, borders,
-      margins: { top: 60, bottom: 60, left: 100, right: 100 },
-      shading: ri === 0 ? { type: ShadingType.CLEAR, fill: "F3F1EA", color: "auto" } : undefined,
-      children: [new Paragraph({ children: runs(String(c), { size: 20, bold: ri === 0 }) })] })) })) });
+      margins: { top: 65, bottom: 65, left: 100, right: 100 },
+      shading: ri === 0 ? { type: ShadingType.CLEAR, fill: "F2F0EB", color: "auto" } : undefined,
+      children: [new Paragraph({ keepNext: ri === rows.length - 1, children: runs(String(c), { size: 19, color: ri === 0 ? "555555" : "222222" }) })] })) })) });
 }
 
 const body = [
@@ -128,7 +129,7 @@ const body = [
   Q("Which method did we choose?", "Spatial accumulation. In our system the ARM core sends each FIFO word by memory-mapped I/O, so putting more multiply-accumulates into each word can reduce the number of writes. A header at the start of each packet selects the operand width: code 0 is 8 bits, 1 is 4 bits, and 2 is 2 bits."),
   P("Each 32-bit data word holds 16 bits of weights above 16 bits of activations. The MAC computes 2, 4, or 8 operand pairs per word at 8, 4, or 2 bits. TLAST returns the 32-bit accumulated sum and clears the accumulator for the next packet."),
 
-  H2("Precision of each layer (5.3)", true),
+  H2("Precision of each layer (5.3)"),
   T([24, 10, 24, 10, 24, 8], [
     ["Layer", "Bits", "Layer", "Bits", "Layer", "Bits"],
     ["conv1", 8, "conv2", 4, "conv3", 8],
@@ -177,14 +178,19 @@ const body = [
 
 const doc = new Document({
   styles: {
-    default: { document: { run: { font: FONT, size: 22 } } },
+    default: { document: { run: { font: FONT, size: 21, color: "202020" } } },
     paragraphStyles: [
-      { id: "Title", name: "Title", basedOn: "Normal", next: "Normal", run: { font: FONT, size: 44 } },
-      { id: "Heading1", name: "Heading 1", basedOn: "Normal", next: "Normal", quickFormat: true, run: { font: FONT, size: 30 }, paragraph: { outlineLevel: 0 } },
-      { id: "Heading2", name: "Heading 2", basedOn: "Normal", next: "Normal", quickFormat: true, run: { font: FONT, size: 25 }, paragraph: { outlineLevel: 1 } },
+      { id: "Title", name: "Title", basedOn: "Normal", next: "Normal", run: { font: SERIF, size: 52, color: "202020" } },
+      { id: "Heading1", name: "Heading 1", basedOn: "Normal", next: "Normal", quickFormat: true, run: { font: SERIF, size: 36, color: "202020" }, paragraph: { outlineLevel: 0 } },
+      { id: "Heading2", name: "Heading 2", basedOn: "Normal", next: "Normal", quickFormat: true, run: { font: SERIF, size: 29, color: "202020" }, paragraph: { outlineLevel: 1 } },
     ] },
   numbering: { config: [{ reference: "b", levels: [{ level: 0, format: LevelFormat.BULLET, text: "•", alignment: AlignmentType.LEFT,
     style: { paragraph: { indent: { left: 540, hanging: 270 } } } }] }] },
-  sections: [{ properties: { page: { size: { width: 12240, height: 15840 }, margin: { top: 1440, bottom: 1440, left: 1440, right: 1440 } } }, children: body }],
+  sections: [{
+    properties: { page: { size: { width: 11906, height: 16838 }, margin: { top: 1050, bottom: 930, left: 936, right: 936, header: 300, footer: 420 } } },
+    headers: { default: new Header({ children: [new Paragraph({ children: [new TextRun({ text: "CprE 487/587 Lab 5 Report (Group 06)", font: FONT, size: 15, color: "777777" })] })] }) },
+    footers: { default: new Footer({ children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: "Page ", font: FONT, size: 15, color: "777777" }), new TextRun({ children: [PageNumber.CURRENT], font: FONT, size: 15, color: "777777" }), new TextRun({ text: " of ", font: FONT, size: 15, color: "777777" }), new TextRun({ children: [PageNumber.TOTAL_PAGES], font: FONT, size: 15, color: "777777" })] })] }) },
+    children: body,
+  }],
 });
 Packer.toBuffer(doc).then(b => fs.writeFileSync(process.argv[2], b));
