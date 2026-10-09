@@ -1,9 +1,9 @@
 Copyright 1986-2020 Xilinx, Inc. All Rights Reserved.
 ------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2020.1 (lin64) Build 2902540 Wed May 27 19:54:35 MDT 2020
-| Date         : Thu Oct  8 21:31:52 2026
+| Date         : Thu Oct  8 21:33:34 2026
 | Host         : co2050-02.ece.iastate.edu running 64-bit unknown
-| Command      : report_timing_summary -file timing_summary_8bit.rpt
+| Command      : report_timing_summary -file timing_summary_2bit.rpt
 | Design       : staged_mac
 | Device       : 7z020-clg484
 | Speed File   : -1  PRODUCTION 1.12 2019-11-22
@@ -43,7 +43,7 @@ Table of Contents
 2. checking constant_clock (0)
 3. checking pulse_width_clock (0)
 4. checking unconstrained_internal_endpoints (0)
-5. checking no_input_delay (29)
+5. checking no_input_delay (17)
 6. checking no_output_delay (42)
 7. checking multiple_clock (0)
 8. checking generated_clocks (0)
@@ -74,9 +74,9 @@ Table of Contents
  There are 0 pins that are not constrained for maximum delay due to constant clock.
 
 
-5. checking no_input_delay (29)
+5. checking no_input_delay (17)
 -------------------------------
- There are 29 input ports with no input delay specified. (HIGH)
+ There are 17 input ports with no input delay specified. (HIGH)
 
  There are 0 input ports with no input delay but user has a false path constraint.
 
@@ -128,7 +128,7 @@ Table of Contents
 
     WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
     -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
-      0.834        0.000                      0                   73        0.291        0.000                      0                   73        2.000        0.000                       0                    42  
+      1.283        0.000                      0                   73        0.325        0.000                      0                   73        2.000        0.000                       0                    42  
 
 
 All user specified timing constraints are met.
@@ -151,7 +151,7 @@ main   {0.000 2.500}        5.000           200.000
 
 Clock             WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
 -----             -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
-main                0.834        0.000                      0                   73        0.291        0.000                      0                   73        2.000        0.000                       0                    42  
+main                1.283        0.000                      0                   73        0.325        0.000                      0                   73        2.000        0.000                       0                    42  
 
 
 ------------------------------------------------------------------------------------------------
@@ -182,28 +182,28 @@ Path Group    From Clock    To Clock          WNS(ns)      TNS(ns)  TNS Failing 
 From Clock:  main
   To Clock:  main
 
-Setup :            0  Failing Endpoints,  Worst Slack        0.834ns,  Total Violation        0.000ns
-Hold  :            0  Failing Endpoints,  Worst Slack        0.291ns,  Total Violation        0.000ns
+Setup :            0  Failing Endpoints,  Worst Slack        1.283ns,  Total Violation        0.000ns
+Hold  :            0  Failing Endpoints,  Worst Slack        0.325ns,  Total Violation        0.000ns
 PW    :            0  Failing Endpoints,  Worst Slack        2.000ns,  Total Violation        0.000ns
 ---------------------------------------------------------------------------------------------------
 
 
 Max Delay Paths
 --------------------------------------------------------------------------------------
-Slack (MET) :             0.834ns  (required time - arrival time)
-  Source:                 state_reg/C
+Slack (MET) :             1.283ns  (required time - arrival time)
+  Source:                 acc_reg[8]/C
                             (rising edge-triggered cell FDRE clocked by main  {rise@0.000ns fall@2.500ns period=5.000ns})
-  Destination:            acc_reg[5]/D
+  Destination:            acc_reg[31]/D
                             (rising edge-triggered cell FDRE clocked by main  {rise@0.000ns fall@2.500ns period=5.000ns})
   Path Group:             main
   Path Type:              Setup (Max at Slow Process Corner)
   Requirement:            5.000ns  (main rise@5.000ns - main rise@0.000ns)
-  Data Path Delay:        3.778ns  (logic 0.610ns (16.145%)  route 3.168ns (83.855%))
-  Logic Levels:           1  (LUT4=1)
-  Clock Path Skew:        -0.068ns (DCD - SCD + CPR)
-    Destination Clock Delay (DCD):    4.599ns = ( 9.599 - 5.000 ) 
-    Source Clock Delay      (SCD):    5.124ns
-    Clock Pessimism Removal (CPR):    0.457ns
+  Data Path Delay:        3.781ns  (logic 2.426ns (64.168%)  route 1.355ns (35.832%))
+  Logic Levels:           8  (CARRY4=6 LUT2=1 LUT4=1)
+  Clock Path Skew:        -0.019ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    4.582ns = ( 9.582 - 5.000 ) 
+    Source Clock Delay      (SCD):    5.098ns
+    Clock Pessimism Removal (CPR):    0.497ns
   Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
     Total System Jitter     (TSJ):    0.071ns
     Total Input Jitter      (TIJ):    0.000ns
@@ -218,14 +218,34 @@ Slack (MET) :             0.834ns  (required time - arrival time)
     K19                  IBUF (Prop_ibuf_I_O)         0.938     0.938 r  ACLK_IBUF_inst/O
                          net (fo=1, routed)           2.205     3.143    ACLK_IBUF
     BUFGCTRL_X0Y16       BUFG (Prop_bufg_I_O)         0.101     3.244 r  ACLK_IBUF_BUFG_inst/O
-                         net (fo=41, routed)          1.880     5.124    ACLK_IBUF_BUFG
-    SLICE_X113Y40        FDRE                                         r  state_reg/C
+                         net (fo=41, routed)          1.854     5.098    ACLK_IBUF_BUFG
+    SLICE_X112Y81        FDRE                                         r  acc_reg[8]/C
   -------------------------------------------------------------------    -------------------
-    SLICE_X113Y40        FDRE (Prop_fdre_C_Q)         0.456     5.580 f  state_reg/Q
-                         net (fo=37, routed)          2.693     8.273    MO_AXIS_TVALID_OBUF
-    SLICE_X111Y13        LUT4 (Prop_lut4_I3_O)        0.154     8.427 r  acc[5]_i_1/O
-                         net (fo=1, routed)           0.475     8.902    acc[5]_i_1_n_0
-    SLICE_X111Y14        FDRE                                         r  acc_reg[5]/D
+    SLICE_X112Y81        FDRE (Prop_fdre_C_Q)         0.478     5.576 r  acc_reg[8]/Q
+                         net (fo=4, routed)           0.699     6.274    MO_AXIS_TDATA_OBUF[8]
+    SLICE_X113Y81        LUT2 (Prop_lut2_I0_O)        0.295     6.569 r  acc[11]_i_5/O
+                         net (fo=1, routed)           0.000     6.569    acc[11]_i_5_n_0
+    SLICE_X113Y81        CARRY4 (Prop_carry4_S[1]_CO[3])
+                                                      0.550     7.119 r  acc_reg[11]_i_2/CO[3]
+                         net (fo=1, routed)           0.000     7.119    acc_reg[11]_i_2_n_0
+    SLICE_X113Y82        CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.114     7.233 r  acc_reg[15]_i_2/CO[3]
+                         net (fo=1, routed)           0.000     7.233    acc_reg[15]_i_2_n_0
+    SLICE_X113Y83        CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.114     7.347 r  acc_reg[19]_i_2/CO[3]
+                         net (fo=1, routed)           0.000     7.347    acc_reg[19]_i_2_n_0
+    SLICE_X113Y84        CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.114     7.461 r  acc_reg[23]_i_2/CO[3]
+                         net (fo=1, routed)           0.000     7.461    acc_reg[23]_i_2_n_0
+    SLICE_X113Y85        CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.114     7.575 r  acc_reg[27]_i_2/CO[3]
+                         net (fo=1, routed)           0.000     7.575    acc_reg[27]_i_2_n_0
+    SLICE_X113Y86        CARRY4 (Prop_carry4_CI_O[3])
+                                                      0.313     7.888 r  acc_reg[31]_i_4/O[3]
+                         net (fo=1, routed)           0.656     8.544    acc0[31]
+    SLICE_X112Y86        LUT4 (Prop_lut4_I0_O)        0.334     8.878 r  acc[31]_i_3/O
+                         net (fo=1, routed)           0.000     8.878    acc[31]_i_3_n_0
+    SLICE_X112Y86        FDRE                                         r  acc_reg[31]/D
   -------------------------------------------------------------------    -------------------
 
                          (clock main rise edge)       5.000     5.000 r  
@@ -234,16 +254,16 @@ Slack (MET) :             0.834ns  (required time - arrival time)
     K19                  IBUF (Prop_ibuf_I_O)         0.804     5.804 r  ACLK_IBUF_inst/O
                          net (fo=1, routed)           2.006     7.810    ACLK_IBUF
     BUFGCTRL_X0Y16       BUFG (Prop_bufg_I_O)         0.091     7.901 r  ACLK_IBUF_BUFG_inst/O
-                         net (fo=41, routed)          1.697     9.599    ACLK_IBUF_BUFG
-    SLICE_X111Y14        FDRE                                         r  acc_reg[5]/C
-                         clock pessimism              0.457    10.056    
-                         clock uncertainty           -0.035    10.020    
-    SLICE_X111Y14        FDRE (Setup_fdre_C_D)       -0.284     9.736    acc_reg[5]
+                         net (fo=41, routed)          1.681     9.582    ACLK_IBUF_BUFG
+    SLICE_X112Y86        FDRE                                         r  acc_reg[31]/C
+                         clock pessimism              0.497    10.079    
+                         clock uncertainty           -0.035    10.043    
+    SLICE_X112Y86        FDRE (Setup_fdre_C_D)        0.118    10.161    acc_reg[31]
   -------------------------------------------------------------------
-                         required time                          9.736    
-                         arrival time                          -8.902    
+                         required time                         10.161    
+                         arrival time                          -8.878    
   -------------------------------------------------------------------
-                         slack                                  0.834    
+                         slack                                  1.283    
 
 
 
@@ -251,7 +271,7 @@ Slack (MET) :             0.834ns  (required time - arrival time)
 
 Min Delay Paths
 --------------------------------------------------------------------------------------
-Slack (MET) :             0.291ns  (arrival time - required time)
+Slack (MET) :             0.325ns  (arrival time - required time)
   Source:                 state_reg/C
                             (rising edge-triggered cell FDRE clocked by main  {rise@0.000ns fall@2.500ns period=5.000ns})
   Destination:            state_reg/D
@@ -259,12 +279,12 @@ Slack (MET) :             0.291ns  (arrival time - required time)
   Path Group:             main
   Path Type:              Hold (Min at Fast Process Corner)
   Requirement:            0.000ns  (main rise@0.000ns - main rise@0.000ns)
-  Data Path Delay:        0.382ns  (logic 0.186ns (48.699%)  route 0.196ns (51.301%))
+  Data Path Delay:        0.384ns  (logic 0.209ns (54.442%)  route 0.175ns (45.558%))
   Logic Levels:           1  (LUT5=1)
   Clock Path Skew:        0.000ns (DCD - SCD - CPR)
-    Destination Clock Delay (DCD):    2.027ns
-    Source Clock Delay      (SCD):    1.507ns
-    Clock Pessimism Removal (CPR):    0.520ns
+    Destination Clock Delay (DCD):    2.017ns
+    Source Clock Delay      (SCD):    1.499ns
+    Clock Pessimism Removal (CPR):    0.519ns
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
@@ -274,14 +294,14 @@ Slack (MET) :             0.291ns  (arrival time - required time)
     K19                  IBUF (Prop_ibuf_I_O)         0.167     0.167 r  ACLK_IBUF_inst/O
                          net (fo=1, routed)           0.674     0.841    ACLK_IBUF
     BUFGCTRL_X0Y16       BUFG (Prop_bufg_I_O)         0.026     0.867 r  ACLK_IBUF_BUFG_inst/O
-                         net (fo=41, routed)          0.641     1.507    ACLK_IBUF_BUFG
-    SLICE_X113Y40        FDRE                                         r  state_reg/C
+                         net (fo=41, routed)          0.632     1.499    ACLK_IBUF_BUFG
+    SLICE_X112Y65        FDRE                                         r  state_reg/C
   -------------------------------------------------------------------    -------------------
-    SLICE_X113Y40        FDRE (Prop_fdre_C_Q)         0.141     1.648 r  state_reg/Q
-                         net (fo=37, routed)          0.196     1.844    MO_AXIS_TVALID_OBUF
-    SLICE_X113Y40        LUT5 (Prop_lut5_I0_O)        0.045     1.889 r  state_i_1/O
-                         net (fo=1, routed)           0.000     1.889    state_i_1_n_0
-    SLICE_X113Y40        FDRE                                         r  state_reg/D
+    SLICE_X112Y65        FDRE (Prop_fdre_C_Q)         0.164     1.663 r  state_reg/Q
+                         net (fo=37, routed)          0.120     1.782    MO_AXIS_TVALID_OBUF
+    SLICE_X113Y65        LUT5 (Prop_lut5_I0_O)        0.045     1.827 r  state_i_1/O
+                         net (fo=1, routed)           0.055     1.882    state_i_1_n_0
+    SLICE_X112Y65        FDRE                                         r  state_reg/D
   -------------------------------------------------------------------    -------------------
 
                          (clock main rise edge)       0.000     0.000 r  
@@ -290,15 +310,15 @@ Slack (MET) :             0.291ns  (arrival time - required time)
     K19                  IBUF (Prop_ibuf_I_O)         0.355     0.355 r  ACLK_IBUF_inst/O
                          net (fo=1, routed)           0.731     1.086    ACLK_IBUF
     BUFGCTRL_X0Y16       BUFG (Prop_bufg_I_O)         0.029     1.115 r  ACLK_IBUF_BUFG_inst/O
-                         net (fo=41, routed)          0.912     2.027    ACLK_IBUF_BUFG
-    SLICE_X113Y40        FDRE                                         r  state_reg/C
-                         clock pessimism             -0.520     1.507    
-    SLICE_X113Y40        FDRE (Hold_fdre_C_D)         0.091     1.598    state_reg
+                         net (fo=41, routed)          0.902     2.017    ACLK_IBUF_BUFG
+    SLICE_X112Y65        FDRE                                         r  state_reg/C
+                         clock pessimism             -0.519     1.499    
+    SLICE_X112Y65        FDRE (Hold_fdre_C_D)         0.059     1.558    state_reg
   -------------------------------------------------------------------
-                         required time                         -1.598    
-                         arrival time                           1.889    
+                         required time                         -1.558    
+                         arrival time                           1.882    
   -------------------------------------------------------------------
-                         slack                                  0.291    
+                         slack                                  0.325    
 
 
 
@@ -313,8 +333,8 @@ Sources:            { ACLK }
 
 Check Type        Corner  Lib Pin  Reference Pin  Required(ns)  Actual(ns)  Slack(ns)  Location        Pin
 Min Period        n/a     BUFG/I   n/a            2.155         5.000       2.845      BUFGCTRL_X0Y16  ACLK_IBUF_BUFG_inst/I
-Low Pulse Width   Slow    FDRE/C   n/a            0.500         2.500       2.000      SLICE_X113Y18   acc_reg[24]/C
-High Pulse Width  Fast    FDRE/C   n/a            0.500         2.500       2.000      SLICE_X112Y41   id_reg_reg[0]/C
+Low Pulse Width   Slow    FDRE/C   n/a            0.500         2.500       2.000      SLICE_X113Y52   id_reg_reg[0]/C
+High Pulse Width  Fast    FDRE/C   n/a            0.500         2.500       2.000      SLICE_X112Y84   acc_reg[20]/C
 
 
 

@@ -1,9 +1,9 @@
 Copyright 1986-2020 Xilinx, Inc. All Rights Reserved.
 ------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2020.1 (lin64) Build 2902540 Wed May 27 19:54:35 MDT 2020
-| Date         : Wed Sep 23 14:48:25 2026
-| Host         : linuxvdi-f26-12.ece.iastate.edu running 64-bit unknown
-| Command      : report_timing_summary -file timing_summary.rpt
+| Date         : Thu Oct  8 21:35:18 2026
+| Host         : co2050-02.ece.iastate.edu running 64-bit unknown
+| Command      : report_timing_summary -file timing_summary_8bit.rpt
 | Design       : piped_mac
 | Device       : 7z020-clg484
 | Speed File   : -1  PRODUCTION 1.12 2019-11-22
@@ -128,10 +128,10 @@ Table of Contents
 
     WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
     -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
-      0.511        0.000                      0                  316        0.122        0.000                      0                  316       -0.450      -62.100                     138                   140  
+      0.511        0.000                      0                  316        0.122        0.000                      0                  316        2.000        0.000                       0                   140  
 
 
-Timing constraints are not met.
+All user specified timing constraints are met.
 
 
 ------------------------------------------------------------------------------------------------
@@ -141,7 +141,7 @@ Timing constraints are not met.
 
 Clock  Waveform(ns)         Period(ns)      Frequency(MHz)
 -----  ------------         ----------      --------------
-main   {0.000 0.050}        5.000           200.000         
+main   {0.000 2.500}        5.000           200.000         
 
 
 ------------------------------------------------------------------------------------------------
@@ -151,7 +151,7 @@ main   {0.000 0.050}        5.000           200.000
 
 Clock             WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
 -----             -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
-main                0.511        0.000                      0                  316        0.122        0.000                      0                  316       -0.450      -62.100                     138                   140  
+main                0.511        0.000                      0                  316        0.122        0.000                      0                  316        2.000        0.000                       0                   140  
 
 
 ------------------------------------------------------------------------------------------------
@@ -184,7 +184,7 @@ From Clock:  main
 
 Setup :            0  Failing Endpoints,  Worst Slack        0.511ns,  Total Violation        0.000ns
 Hold  :            0  Failing Endpoints,  Worst Slack        0.122ns,  Total Violation        0.000ns
-PW    :          138  Failing Endpoints,  Worst Slack       -0.450ns,  Total Violation      -62.100ns
+PW    :            0  Failing Endpoints,  Worst Slack        2.000ns,  Total Violation        0.000ns
 ---------------------------------------------------------------------------------------------------
 
 
@@ -192,9 +192,9 @@ Max Delay Paths
 --------------------------------------------------------------------------------------
 Slack (MET) :             0.511ns  (required time - arrival time)
   Source:                 acc0/CLK
-                            (rising edge-triggered cell DSP48E1 clocked by main  {rise@0.000ns fall@0.050ns period=5.000ns})
+                            (rising edge-triggered cell DSP48E1 clocked by main  {rise@0.000ns fall@2.500ns period=5.000ns})
   Destination:            acc0/C[43]
-                            (rising edge-triggered cell DSP48E1 clocked by main  {rise@0.000ns fall@0.050ns period=5.000ns})
+                            (rising edge-triggered cell DSP48E1 clocked by main  {rise@0.000ns fall@2.500ns period=5.000ns})
   Path Group:             main
   Path Type:              Setup (Max at Slow Process Corner)
   Requirement:            5.000ns  (main rise@5.000ns - main rise@0.000ns)
@@ -255,9 +255,9 @@ Min Delay Paths
 --------------------------------------------------------------------------------------
 Slack (MET) :             0.122ns  (arrival time - required time)
   Source:                 s1_tid_reg[1]/C
-                            (rising edge-triggered cell FDRE clocked by main  {rise@0.000ns fall@0.050ns period=5.000ns})
+                            (rising edge-triggered cell FDRE clocked by main  {rise@0.000ns fall@2.500ns period=5.000ns})
   Destination:            s2_tid_reg[1]/D
-                            (rising edge-triggered cell FDRE clocked by main  {rise@0.000ns fall@0.050ns period=5.000ns})
+                            (rising edge-triggered cell FDRE clocked by main  {rise@0.000ns fall@2.500ns period=5.000ns})
   Path Group:             main
   Path Type:              Hold (Min at Fast Process Corner)
   Requirement:            0.000ns  (main rise@0.000ns - main rise@0.000ns)
@@ -307,14 +307,14 @@ Slack (MET) :             0.122ns  (arrival time - required time)
 Pulse Width Checks
 --------------------------------------------------------------------------------------
 Clock Name:         main
-Waveform(ns):       { 0.000 0.050 }
+Waveform(ns):       { 0.000 2.500 }
 Period(ns):         5.000
 Sources:            { ACLK }
 
 Check Type        Corner  Lib Pin  Reference Pin  Required(ns)  Actual(ns)  Slack(ns)  Location        Pin
 Min Period        n/a     BUFG/I   n/a            2.155         5.000       2.845      BUFGCTRL_X0Y16  ACLK_IBUF_BUFG_inst/I
-Low Pulse Width   Slow    FDRE/C   n/a            0.500         4.950       4.450      SLICE_X105Y93   MO_AXIS_TDATA_reg[0]/C
-High Pulse Width  Slow    FDRE/C   n/a            0.500         0.050       -0.450     SLICE_X105Y93   MO_AXIS_TDATA_reg[0]/C
+Low Pulse Width   Slow    FDRE/C   n/a            0.500         2.500       2.000      SLICE_X105Y93   MO_AXIS_TDATA_reg[0]/C
+High Pulse Width  Fast    FDRE/C   n/a            0.500         2.500       2.000      SLICE_X105Y93   MO_AXIS_TDATA_reg[0]/C
 
 
 

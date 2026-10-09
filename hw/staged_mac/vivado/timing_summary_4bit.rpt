@@ -1,9 +1,9 @@
 Copyright 1986-2020 Xilinx, Inc. All Rights Reserved.
 ------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2020.1 (lin64) Build 2902540 Wed May 27 19:54:35 MDT 2020
-| Date         : Thu Oct  8 21:31:52 2026
+| Date         : Thu Oct  8 21:27:58 2026
 | Host         : co2050-02.ece.iastate.edu running 64-bit unknown
-| Command      : report_timing_summary -file timing_summary_8bit.rpt
+| Command      : report_timing_summary -file timing_summary_4bit.rpt
 | Design       : staged_mac
 | Device       : 7z020-clg484
 | Speed File   : -1  PRODUCTION 1.12 2019-11-22
@@ -43,7 +43,7 @@ Table of Contents
 2. checking constant_clock (0)
 3. checking pulse_width_clock (0)
 4. checking unconstrained_internal_endpoints (0)
-5. checking no_input_delay (29)
+5. checking no_input_delay (21)
 6. checking no_output_delay (42)
 7. checking multiple_clock (0)
 8. checking generated_clocks (0)
@@ -74,9 +74,9 @@ Table of Contents
  There are 0 pins that are not constrained for maximum delay due to constant clock.
 
 
-5. checking no_input_delay (29)
+5. checking no_input_delay (21)
 -------------------------------
- There are 29 input ports with no input delay specified. (HIGH)
+ There are 21 input ports with no input delay specified. (HIGH)
 
  There are 0 input ports with no input delay but user has a false path constraint.
 
@@ -128,7 +128,7 @@ Table of Contents
 
     WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
     -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
-      0.834        0.000                      0                   73        0.291        0.000                      0                   73        2.000        0.000                       0                    42  
+      1.100        0.000                      0                   73        0.291        0.000                      0                   73        2.000        0.000                       0                    42  
 
 
 All user specified timing constraints are met.
@@ -151,7 +151,7 @@ main   {0.000 2.500}        5.000           200.000
 
 Clock             WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
 -----             -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
-main                0.834        0.000                      0                   73        0.291        0.000                      0                   73        2.000        0.000                       0                    42  
+main                1.100        0.000                      0                   73        0.291        0.000                      0                   73        2.000        0.000                       0                    42  
 
 
 ------------------------------------------------------------------------------------------------
@@ -182,7 +182,7 @@ Path Group    From Clock    To Clock          WNS(ns)      TNS(ns)  TNS Failing 
 From Clock:  main
   To Clock:  main
 
-Setup :            0  Failing Endpoints,  Worst Slack        0.834ns,  Total Violation        0.000ns
+Setup :            0  Failing Endpoints,  Worst Slack        1.100ns,  Total Violation        0.000ns
 Hold  :            0  Failing Endpoints,  Worst Slack        0.291ns,  Total Violation        0.000ns
 PW    :            0  Failing Endpoints,  Worst Slack        2.000ns,  Total Violation        0.000ns
 ---------------------------------------------------------------------------------------------------
@@ -190,18 +190,18 @@ PW    :            0  Failing Endpoints,  Worst Slack        2.000ns,  Total Vio
 
 Max Delay Paths
 --------------------------------------------------------------------------------------
-Slack (MET) :             0.834ns  (required time - arrival time)
+Slack (MET) :             1.100ns  (required time - arrival time)
   Source:                 state_reg/C
                             (rising edge-triggered cell FDRE clocked by main  {rise@0.000ns fall@2.500ns period=5.000ns})
-  Destination:            acc_reg[5]/D
+  Destination:            acc_reg[1]/CE
                             (rising edge-triggered cell FDRE clocked by main  {rise@0.000ns fall@2.500ns period=5.000ns})
   Path Group:             main
   Path Type:              Setup (Max at Slow Process Corner)
   Requirement:            5.000ns  (main rise@5.000ns - main rise@0.000ns)
-  Data Path Delay:        3.778ns  (logic 0.610ns (16.145%)  route 3.168ns (83.855%))
-  Logic Levels:           1  (LUT4=1)
-  Clock Path Skew:        -0.068ns (DCD - SCD + CPR)
-    Destination Clock Delay (DCD):    4.599ns = ( 9.599 - 5.000 ) 
+  Data Path Delay:        3.388ns  (logic 0.572ns (16.881%)  route 2.816ns (83.119%))
+  Logic Levels:           1  (LUT3=1)
+  Clock Path Skew:        -0.067ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    4.600ns = ( 9.600 - 5.000 ) 
     Source Clock Delay      (SCD):    5.124ns
     Clock Pessimism Removal (CPR):    0.457ns
   Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
@@ -221,11 +221,11 @@ Slack (MET) :             0.834ns  (required time - arrival time)
                          net (fo=41, routed)          1.880     5.124    ACLK_IBUF_BUFG
     SLICE_X113Y40        FDRE                                         r  state_reg/C
   -------------------------------------------------------------------    -------------------
-    SLICE_X113Y40        FDRE (Prop_fdre_C_Q)         0.456     5.580 f  state_reg/Q
-                         net (fo=37, routed)          2.693     8.273    MO_AXIS_TVALID_OBUF
-    SLICE_X111Y13        LUT4 (Prop_lut4_I3_O)        0.154     8.427 r  acc[5]_i_1/O
-                         net (fo=1, routed)           0.475     8.902    acc[5]_i_1_n_0
-    SLICE_X111Y14        FDRE                                         r  acc_reg[5]/D
+    SLICE_X113Y40        FDRE (Prop_fdre_C_Q)         0.456     5.580 r  state_reg/Q
+                         net (fo=37, routed)          0.315     5.895    MO_AXIS_TVALID_OBUF
+    SLICE_X112Y40        LUT3 (Prop_lut3_I1_O)        0.116     6.011 r  acc[31]_i_2/O
+                         net (fo=32, routed)          2.501     8.512    acc[31]_i_2_n_0
+    SLICE_X110Y12        FDRE                                         r  acc_reg[1]/CE
   -------------------------------------------------------------------    -------------------
 
                          (clock main rise edge)       5.000     5.000 r  
@@ -234,16 +234,16 @@ Slack (MET) :             0.834ns  (required time - arrival time)
     K19                  IBUF (Prop_ibuf_I_O)         0.804     5.804 r  ACLK_IBUF_inst/O
                          net (fo=1, routed)           2.006     7.810    ACLK_IBUF
     BUFGCTRL_X0Y16       BUFG (Prop_bufg_I_O)         0.091     7.901 r  ACLK_IBUF_BUFG_inst/O
-                         net (fo=41, routed)          1.697     9.599    ACLK_IBUF_BUFG
-    SLICE_X111Y14        FDRE                                         r  acc_reg[5]/C
-                         clock pessimism              0.457    10.056    
-                         clock uncertainty           -0.035    10.020    
-    SLICE_X111Y14        FDRE (Setup_fdre_C_D)       -0.284     9.736    acc_reg[5]
+                         net (fo=41, routed)          1.698     9.600    ACLK_IBUF_BUFG
+    SLICE_X110Y12        FDRE                                         r  acc_reg[1]/C
+                         clock pessimism              0.457    10.057    
+                         clock uncertainty           -0.035    10.021    
+    SLICE_X110Y12        FDRE (Setup_fdre_C_CE)      -0.409     9.612    acc_reg[1]
   -------------------------------------------------------------------
-                         required time                          9.736    
-                         arrival time                          -8.902    
+                         required time                          9.612    
+                         arrival time                          -8.512    
   -------------------------------------------------------------------
-                         slack                                  0.834    
+                         slack                                  1.100    
 
 
 
