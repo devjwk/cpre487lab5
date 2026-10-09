@@ -1,0 +1,4 @@
+timestamp=[2026-10-08 22:25:47], mode=PLATFORM_REPOSITORY_INIT, duration=0:00:02.019, duration_ms=2019, data={}
+timestamp=[2026-10-08 22:26:01], mode=APP_CREATION, duration=0:00:13.407, duration_ms=13407, data={name=sw_test, project_type=sdk, os=standalone, processor=ps7_cortexa9, runtime=cpp, platform=sw_test_platform, application_type=application}
+timestamp=[2026-10-08 22:26:39], mode=PLATFORM_GENERATION, duration=0:00:17.281, duration_ms=17281, data={name=sw_test_platform}
+timestamp=[2026-10-08 22:26:41], mode=BUILD, duration=0:00:01.383, duration_ms=1383, data={name=sw_test, configuration=Debug, clean_build=false}
