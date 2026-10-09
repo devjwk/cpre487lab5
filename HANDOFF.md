@@ -34,7 +34,14 @@ git pull
 source /remote/Xilinx/2020.1/Vivado/2020.1/settings64.sh
 ```
 
-`git pull`을 하면 `sw/framework/workspace_file_transfer` 폴더가 지워진다 (실수로 올라갔던 Vitis 작업 폴더를 저장소에서 뺐기 때문). 3단계의 `file_transfer_vitis`가 자동으로 다시 만든다.
+`git pull`을 하면 `sw/framework/workspace_file_transfer` 안의 파일 중 git에 올라가 있던 것만 지워진다 (실수로 올라갔던 Vitis 작업 폴더를 저장소에서 뺐기 때문). **폴더 자체와 git이 추적하지 않던 파일은 남아서 불완전한 상태가 된다.** `file_transfer_vitis`는 폴더가 있으면 다시 만들지 않으므로, 3단계 전에 이 폴더를 치워야 한다:
+
+```bash
+cd /home/jwk0425/jwk_personal_lab/lab5/sw/framework
+mv workspace_file_transfer workspace_file_transfer.broken
+```
+
+그 뒤 `./scripts/file_transfer_vitis`를 실행하면 새로 만든다.
 
 ### 1) 가변 MAC 단독 합성
 
