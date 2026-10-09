@@ -39,10 +39,16 @@ Model buildToyModel(const Path modelPath) {
     const std::vector<QuantParams> q(8);  // disabled: original fp32 layers
 #else
     const std::size_t A = sizeof(i8), W = sizeof(i8), B = sizeof(i32);
+#ifdef QUANT_VARIABLE
+    const Path dir = modelPath / "qvar";  // Section 5: every layer has its own operand width
+#else
     const Path dir = modelPath / ("q" + std::to_string(QUANT_BITS));
+#endif
     const std::vector<QuantParams> q = loadQuantParams(dir / "quant_params.txt");
     if (q.size() != 8) throw std::runtime_error("Expected 8 conv/dense layers in quant_params.txt");
-    logInfo("Quantized model: " + std::to_string(QUANT_BITS) + " bit, loading " + dir);
+    std::string widths;
+    for (const QuantParams& layer : q) widths += " " + std::to_string(layer.bits);
+    logInfo("Quantized model: loading " + dir + ", operand bits per conv/dense layer:" + widths);
 #endif
     const std::size_t F = sizeof(fp32);
 
@@ -358,6 +364,12 @@ void runAcceleratedCheck(const Model& model, const Path& basePath) {
         reference.push_back(*cur);
     }
 
+    // The model only uses part of the operand values (2 bit: -1, 0, 1), so first check every possible pair
+    for (int bits : MAC_WIDTHS) {
+        const std::size_t bad = macSelfTest(bits);
+        std::cout << "MAC self-test, " << bits << "-bit operands, every pair: " << (bad ? "FAIL (" + std::to_string(bad) + " mismatches)" : "PASS") << std::endl;
+    }
+
     macStats() = MacStats();
     bool allMatch = true;
     cur = &img;
@@ -370,12 +382,12 @@ void runAcceleratedCheck(const Model& model, const Path& basePath) {
         const bool match = std::memcmp(cur->raw(), reference[i].raw(), cur->getParams().byte_size()) == 0;
         allMatch = allMatch && match;
         std::cout << "Layer " << i << " " << layerName(model[i].getLType()) << ": " << (match ? "MATCH" : "MISMATCH")
-                  << ", MAC ops " << (macStats().ops - before.ops) << ", packets " << (macStats().packets - before.packets)
+                  << ", MAC ops " << (macStats().ops - before.ops) << ", words " << (macStats().words - before.words)
+                  << ", packets " << (macStats().packets - before.packets)
                   << ", software " << naiveMs[i] << " ms, MAC unit " << timer.milliseconds << " ms" << std::endl;
     }
-    std::cout << "Total: " << macStats().ops << " MAC ops in " << macStats().packets << " packets ("
-              << MAC_BITS << "-bit operands, up to " << MAC_MAX_GROUP << " pairs per packet) -> "
-              << (allMatch ? "ALL LAYERS MATCH" : "MISMATCH FOUND") << std::endl;
+    std::cout << "Total: " << macStats().ops << " MAC ops in " << macStats().words << " words and " << macStats().packets
+              << " packets -> " << (allMatch ? "ALL LAYERS MATCH" : "MISMATCH FOUND") << std::endl;
 }
 
 #ifndef ZEDBOARD
@@ -420,7 +432,12 @@ void runValidation(std::size_t numImages, Layer::InfType infType = Layer::InfTyp
         if (rank < 10) top10++;
     }
 
-    std::cout << "\n===== Validation (" << QUANT_BITS << " bit, " << done << " images, "
+#ifdef QUANT_VARIABLE
+    std::cout << "\n===== Validation (variable precision, "
+#else
+    std::cout << "\n===== Validation (" << QUANT_BITS << " bit, "
+#endif
+              << done << " images, "
               << (infType == Layer::InfType::ACCELERATED ? "MAC unit" : "software") << ") =====\n"
               << "Top-1 accuracy:  " << 100.0 * top1 / done << "%\n"
               << "Top-10 accuracy: " << 100.0 * top10 / done << "%\n"

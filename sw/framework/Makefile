@@ -22,7 +22,7 @@ EXE_DEBUG = $(BIN)/ml_debug
 # else # Linux
 	CC_LINUX = g++ 
 	CC_WIN = x86_64-w64-mingw32-g++ -static-libgcc -static-libstdc++ -fstack-protector
-	CC_ALL = -Wall -Werror -pedantic -std=c++11 $(if $(QUANT_BITS),-DQUANT_BITS=$(QUANT_BITS),)
+	CC_ALL = -Wall -Werror -pedantic -std=c++11 $(if $(QUANT_BITS),-DQUANT_BITS=$(QUANT_BITS),) $(if $(QUANT_VARIABLE),-DQUANT_VARIABLE,)
 	CC_DEBUG = -g -Og
 	CC_OPT_FLAGS = -O3
 	CC_SIMD_FLAGS = -march=native

@@ -96,7 +96,7 @@ void ConvolutionalLayer::computeQuantized(const LayerData& dataIn) const {
         const std::size_t count = dataIn.getParams().flat_count();
         quantizedImage.resize(count);
         for (std::size_t i = 0; i < count; i++) {
-            quantizedImage[i] = quantize(dataIn.get<fp32>(i), quant.inScale, quant.inZero);
+            quantizedImage[i] = quantize(dataIn.get<fp32>(i), quant.inScale, quant.inZero, quant.bits);
         }
         in = quantizedImage.data();
     }
@@ -128,7 +128,7 @@ void ConvolutionalLayer::computeQuantized(const LayerData& dataIn) const {
                 if (quant.outScale == 0) {
                     getOutputData().get<fp32>(outputIdx) = y;
                 } else {
-                    getOutputData().get<i8>(outputIdx) = quantize(y, quant.outScale, quant.outZero);
+                    getOutputData().get<i8>(outputIdx) = quantize(y, quant.outScale, quant.outZero, quant.outBits);
                 }
             }
         }
@@ -167,7 +167,7 @@ void ConvolutionalLayer::computeAccelerated(const LayerData& dataIn) const {
         const std::size_t count = dataIn.getParams().flat_count();
         quantizedImage.resize(count);
         for (std::size_t i = 0; i < count; i++) {
-            quantizedImage[i] = quantize(dataIn.get<fp32>(i), quant.inScale, quant.inZero);
+            quantizedImage[i] = quantize(dataIn.get<fp32>(i), quant.inScale, quant.inZero, quant.bits);
         }
         in = quantizedImage.data();
     }
@@ -202,7 +202,7 @@ void ConvolutionalLayer::computeAccelerated(const LayerData& dataIn) const {
             }
 
             for (std::size_t oc = 0; oc < outC; oc++) {
-                i32 acc = macGroup(&kernels[oc * groupSize], patch.data(), groupSize) + offsets[oc];
+                i32 acc = macGroup(&kernels[oc * groupSize], patch.data(), groupSize, quant.bits) + offsets[oc];
 
                 fp32 y = acc / accScale;
                 if (y < 0) y = 0;
@@ -211,7 +211,7 @@ void ConvolutionalLayer::computeAccelerated(const LayerData& dataIn) const {
                 if (quant.outScale == 0) {
                     getOutputData().get<fp32>(outputIdx) = y;
                 } else {
-                    getOutputData().get<i8>(outputIdx) = quantize(y, quant.outScale, quant.outZero);
+                    getOutputData().get<i8>(outputIdx) = quantize(y, quant.outScale, quant.outZero, quant.outBits);
                 }
             }
         }

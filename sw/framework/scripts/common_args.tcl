@@ -9,6 +9,7 @@ set option {
   {proc_name.arg      "ps7_cortexa9_0"          "prorcessor name"}
   {template.arg       "Empty Application (C++)" "application project template"}
   {quant_bits.arg     "8"                       "QUANT_BITS of the build: 8, 4 or 2 (must match the MAC width in the XSA)"}
+  {variable.arg       "no"                      "yes: build the variable-precision model (QUANT_VARIABLE) for the variable MAC"}
   {prepare_debug.arg  "no"                      "(flash) prepare for debugging instead of flashing"}
 }
 

@@ -112,7 +112,7 @@ class DenseLayer : public Layer {
                 weightSum += row[i];
             }
 
-            i32 acc = macGroup(row.data(), in, inputSize) + biases[out] - quant.inZero * weightSum;
+            i32 acc = macGroup(row.data(), in, inputSize, quant.bits) + biases[out] - quant.inZero * weightSum;
 
             fp32 y = acc / accScale;
             if (useReLU && y < 0) y = 0;
@@ -120,7 +120,7 @@ class DenseLayer : public Layer {
             if (quant.outScale == 0) {
                 getOutputData().get<fp32>(out) = y;  // last layer: fp32 logits for softmax
             } else {
-                getOutputData().get<i8>(out) = quantize(y, quant.outScale, quant.outZero);
+                getOutputData().get<i8>(out) = quantize(y, quant.outScale, quant.outZero, quant.outBits);
             }
         }
     }
@@ -148,7 +148,7 @@ class DenseLayer : public Layer {
             if (quant.outScale == 0) {
                 getOutputData().get<fp32>(out) = y;  // last layer: fp32 logits for softmax
             } else {
-                getOutputData().get<i8>(out) = quantize(y, quant.outScale, quant.outZero);
+                getOutputData().get<i8>(out) = quantize(y, quant.outScale, quant.outZero, quant.outBits);
             }
         }
     }

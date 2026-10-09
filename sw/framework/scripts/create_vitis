@@ -49,6 +49,9 @@ app config -name $params(project_name) -add include-path "../src/zedboard"
 app config -name $params(project_name) -add compiler-misc "-std=c++17 -O3"
 app config -name $params(project_name) -add define-compiler-symbols "ZEDBOARD"
 app config -name $params(project_name) -add define-compiler-symbols "QUANT_BITS=$params(quant_bits)"
+if {[string is true $params(variable)]} {
+  app config -name $params(project_name) -add define-compiler-symbols "QUANT_VARIABLE"
+}
 app config -name $params(project_name) -add linker-misc "-Wl,--defsym=_HEAP_SIZE=0x8000000"
 
 puts "Generating platform"
