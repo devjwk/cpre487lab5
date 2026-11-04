@@ -87,11 +87,9 @@ class DenseLayer : public Layer {
         computeNaive(dataIn);
     }
 
-    // Lab 5: quantized dense layer with the multiply-accumulates on the MAC unit. As in
-    // ConvolutionalLayer::computeAccelerated, the zero point is moved out of the MAC:
-    //     sum((in - inZero) * w) = sum(in * w) - inZero * sum(w)
+    // sum((in - inZero) * w) = sum(in * w) - inZero * sum(w), as in the conv layer
     virtual void computeAccelerated(const LayerData& dataIn) const override {
-        if (!quant.enabled) {  // the fp32 model has no MAC implementation
+        if (!quant.enabled) {
             computeNaive(dataIn);
             return;
         }
@@ -104,7 +102,7 @@ class DenseLayer : public Layer {
         const i32* biases = (const i32*)getBiasData().raw();
         const fp32 accScale = quant.inScale * quant.wScale;
 
-        std::vector<i8> row(inputSize);  // one output's weights, contiguous = one MAC group
+        std::vector<i8> row(inputSize);
         for (std::size_t out = 0; out < outputSize; out++) {
             i32 weightSum = 0;
             for (std::size_t i = 0; i < inputSize; i++) {
@@ -126,7 +124,6 @@ class DenseLayer : public Layer {
     }
 
    private:
-    // Lab 4: same integer MAC / dequantize / ReLU / requantize flow as ConvolutionalLayer::computeQuantized
     void computeQuantized(const LayerData& dataIn) const {
         const std::size_t inputSize = dataIn.getParams().flat_count();
         const std::size_t outputSize = getOutputParams().flat_count();

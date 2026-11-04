@@ -1,5 +1,3 @@
-# Build one MAC variant in the Lab 3 block-design project (PS7 + AXI FIFO + MAC) and export its XSA and
-# system-level reports into the current directory.
 # vivado -mode batch -source build_xsa.tcl -tclargs <project.xpr> <staged|piped> <C_DATA_WIDTH: 8|4|2>
 # vivado -mode batch -source build_xsa.tcl -tclargs <project.xpr> variable
 lassign $argv proj mac width
@@ -9,11 +7,10 @@ set hw [file dirname [file normalize [info script]]]
 open_project $proj
 open_bd_design [get_files staged_mac_bd.bd]
 
-# The Lab 3 debug ILA is not part of the design being measured
+# Remove the debug ILA
 set ila [get_bd_cells -quiet -filter {VLNV =~ "*system_ila*"}]
 if {[llength $ila]} { delete_bd_objs $ila }
 
-# Swap the MAC module if the block design holds the other one (both have the same ports)
 if {![llength [get_bd_cells -quiet -filter "VLNV =~ \"*:${mac}_mac:*\""]]} {
     set old [get_bd_cells -filter {VLNV =~ "*_mac:*"}]
     set intf {}
@@ -35,8 +32,7 @@ if {![llength [get_bd_cells -quiet -filter "VLNV =~ \"*:${mac}_mac:*\""]]} {
     foreach {name q} $pins { connect_bd_net [get_bd_pins $new/$name] [get_bd_pins $q] }
 }
 
-# The FIFO sends 32-bit words. A fixed-width MAC gets the low bytes that hold the packed pair (2-bit: TDATA is
-# 4 bits, the MAC port takes the low nibble of the byte); the variable-precision MAC gets the whole word.
+# Fixed-width MAC: low bytes of the word; variable MAC: whole word
 if {$mac eq "variable"} {
     set bytes 4
 } else {

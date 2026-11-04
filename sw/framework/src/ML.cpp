@@ -26,9 +26,7 @@
 namespace ML {
 
 // Build our ML toy model
-// Lab 4: QUANT_BITS (Config.h) selects the fp32 model (32) or the quantized model (8/4/2).
-// Quantized model: int8 activations between layers, int8 weights, int32 biases from <modelPath>/q<bits>/.
-// The model input (image) and the last Dense output / Softmax stay fp32.
+// QUANT_BITS 32: fp32 model, 8/4/2: quantized model from <modelPath>/q<bits>/
 Model buildToyModel(const Path modelPath) {
     Model model;
     logInfo("--- Building Toy Model ---");
@@ -40,7 +38,7 @@ Model buildToyModel(const Path modelPath) {
 #else
     const std::size_t A = sizeof(i8), W = sizeof(i8), B = sizeof(i32);
 #ifdef QUANT_VARIABLE
-    const Path dir = modelPath / "qvar";  // Section 5: every layer has its own operand width
+    const Path dir = modelPath / "qvar";  // per-layer operand width
 #else
     const Path dir = modelPath / ("q" + std::to_string(QUANT_BITS));
 #endif
@@ -270,8 +268,7 @@ void timingTest(const Model& model, const Path& basePath){
 
 }
 
-// Lab 4: run image_0 layer by layer, dequantize every int8 output and compare it with the fp32 reference
-// output of the same layer (Figure 1 style). Then check that the top-1 class matches fp32 for all test images.
+// Compare each dequantized layer output of image_0 with the fp32 reference
 void runQuantCompare(const Model& model, const Path& basePath) {
     logInfo("--- Quantized vs fp32 reference (image_0, per layer) ---");
     const std::size_t numLayers = model.getNumLayers();
@@ -280,14 +277,14 @@ void runQuantCompare(const Model& model, const Path& basePath) {
     img.loadData();
 
     const LayerData* cur = &img;
-    QuantParams act;  // how the current activation is quantized (MaxPool/Flatten keep the previous one)
+    QuantParams act;  // MaxPool/Flatten keep the previous one
     for (std::size_t i = 0; i < numLayers; i++) {
         const LayerData& out = model.inferenceLayer(*cur, i, Layer::InfType::NAIVE);
         cur = &out;
         if (auto conv = dynamic_cast<const ConvolutionalLayer*>(&model[i])) act = conv->getQuantParams();
         if (auto dense = dynamic_cast<const DenseLayer*>(&model[i])) act = dense->getQuantParams();
 
-        // Keras fuses softmax into the last Dense, so its reference file belongs to our Softmax layer
+        // Keras fuses softmax into the last Dense
         if (i == numLayers - 2) continue;
         const std::size_t ref = (i == numLayers - 1) ? i - 1 : i;
 
@@ -304,7 +301,7 @@ void runQuantCompare(const Model& model, const Path& basePath) {
                                    : out.get<fp32>(k);
         }
 
-        // Save the dequantized output for the Section 5 visualization (util/plot_channel.py)
+        // For util/plot_channel.py
         std::ofstream dump(Path(basePath / "model" / ("q" + std::to_string(QUANT_BITS))) / ("image_0_layer_" + std::to_string(i) + "_deq.bin"),
                            std::ios::binary);
         dump.write((const char*)deq.raw(), deq.getParams().byte_size());
@@ -312,7 +309,6 @@ void runQuantCompare(const Model& model, const Path& basePath) {
         std::cout << "Layer " << i << " " << layerName(model[i].getLType()) << ": max error " << deq.maxDiff<fp32>(expected)
                   << ", cosine similarity " << deq.compare<fp32>(expected) << std::endl;
 
-        // Print a few values like the lab manual's Figure 1
         if (i == 0) {
             for (std::size_t k = 0, shown = 0; k < count && shown < 5; k++) {
                 if (expected.get<fp32>(k) == 0) continue;
@@ -342,8 +338,7 @@ void runQuantCompare(const Model& model, const Path& basePath) {
     }
 }
 
-// Lab 5: run image_0 with the software quantized path (NAIVE) and with the MAC unit (ACCELERATED) and check
-// that every layer output is bit-identical. Also reports how many MAC operations each layer needs.
+// image_0 through the software path and the MAC unit: every layer output must be identical
 void runAcceleratedCheck(const Model& model, const Path& basePath) {
     logInfo("--- MAC unit (ACCELERATED) vs software quantized (NAIVE), image_0 ---");
     const std::size_t numLayers = model.getNumLayers();
@@ -351,7 +346,6 @@ void runAcceleratedCheck(const Model& model, const Path& basePath) {
     LayerData img(model[0].getInputParams(), basePath / "image_0.bin");
     img.loadData();
 
-    // Reference: software path, keep a copy of every layer output
     std::vector<LayerData> reference;
     const LayerData* cur = &img;
     std::vector<fp32> naiveMs(numLayers);
@@ -364,7 +358,7 @@ void runAcceleratedCheck(const Model& model, const Path& basePath) {
         reference.push_back(*cur);
     }
 
-    // The model only uses part of the operand values (2 bit: -1, 0, 1), so first check every possible pair
+    // The model uses only some operand values, so first test every pair
     for (int bits : MAC_WIDTHS) {
         const std::size_t bad = macSelfTest(bits);
         std::cout << "MAC self-test, " << bits << "-bit operands, every pair: " << (bad ? "FAIL (" + std::to_string(bad) + " mismatches)" : "PASS") << std::endl;
@@ -391,8 +385,7 @@ void runAcceleratedCheck(const Model& model, const Path& basePath) {
 }
 
 #ifndef ZEDBOARD
-// Lab 4 Sections 5.1 / 6: top-1 / top-10 accuracy and latency over the exported validation images
-// (data/val/val_images_u8.bin: N x 64x64x3 uint8, val_labels_i32.bin: N int32). Run with `./build/ml val [N]`.
+// ./build/ml val [N]: top-1/top-10 accuracy and latency on data/val
 void runValidation(std::size_t numImages, Layer::InfType infType = Layer::InfType::NAIVE) {
     Path basePath("data");
     Model model = buildToyModel(basePath / "model");
@@ -412,7 +405,7 @@ void runValidation(std::size_t numImages, Layer::InfType infType = Layer::InfTyp
     for (; done < numImages; done++) {
         i32 label;
         if (!imageFile.read((char*)pixels.data(), imageSize) || !labelFile.read((char*)&label, sizeof(label))) break;
-        for (std::size_t k = 0; k < imageSize; k++) input.get<fp32>(k) = pixels[k] / 255.0f;  // same normalization as Lab 1
+        for (std::size_t k = 0; k < imageSize; k++) input.get<fp32>(k) = pixels[k] / 255.0f;
 
         auto start = std::chrono::steady_clock::now();
         const LayerData& output = model.inference(input, infType);
@@ -421,7 +414,7 @@ void runValidation(std::size_t numImages, Layer::InfType infType = Layer::InfTyp
         if (ms < minMs) minMs = ms;
         if (ms > maxMs) maxMs = ms;
 
-        // Rank of the true class; ties go to the lower index (same as argmax), so a constant output is not "correct"
+        // Ties go to the lower index, like argmax
         const fp32 p = output.get<fp32>(label);
         std::size_t rank = 0;
         for (i32 k = 0; k < 200; k++) {
@@ -496,7 +489,7 @@ int main() {
 #else
 int main(int argc, char** argv) {
     if (argc > 1 && std::string(argv[1]) == "val") {
-        // ./build/ml val [N] [mac]   -> "mac" runs the multiply-accumulates on the MAC unit
+        // ./build/ml val [N] [mac]
         const bool mac = argc > 3 && std::string(argv[3]) == "mac";
         ML::runValidation(argc > 2 ? std::atoi(argv[2]) : 1000, mac ? ML::Layer::InfType::ACCELERATED : ML::Layer::InfType::NAIVE);
     } else {

@@ -1,12 +1,8 @@
 -------------------------------------------------------------------------
 -- variable_mac_tb.vhd
 -------------------------------------------------------------------------
--- Replays the packets of vectors.txt (written by gen_vectors.cpp from the
--- board code of the framework) into variable_mac and checks every result.
--- Each line is "<number of words> <word 0> ... <word n-1> <expected>",
--- every field 8 hex digits. The packets are sent in three phases:
--- full speed, with random gaps in TVALID, and with random back-pressure
--- on the result as well.
+-- Replays vectors.txt (gen_vectors.cpp): full speed, TVALID gaps, then
+-- gaps plus back-pressure.
 -------------------------------------------------------------------------
 library IEEE;
 use IEEE.std_logic_1164.all;
@@ -30,7 +26,7 @@ architecture sim of variable_mac_tb is
     signal MO_AXIS_TDATA  : std_logic_vector(31 downto 0);
     signal MO_AXIS_TID    : std_logic_vector(7 downto 0);
 
-    signal sent  : natural := 0;  -- packets fully sent
+    signal sent  : natural := 0;
     signal slow  : natural := 0;  -- 0: full speed, 1: gaps in TVALID, 2: gaps and back-pressure
 begin
     ACLK <= not ACLK after 5 ns;
@@ -42,7 +38,6 @@ begin
                   MO_AXIS_TVALID => MO_AXIS_TVALID, MO_AXIS_TDATA => MO_AXIS_TDATA, MO_AXIS_TLAST => MO_AXIS_TLAST,
                   MO_AXIS_TREADY => MO_AXIS_TREADY, MO_AXIS_TID => MO_AXIS_TID);
 
-    -- Sends every packet of the file
     sender : process
         file f        : text;
         variable l    : line;
@@ -52,7 +47,6 @@ begin
         variable r    : real;
         variable total : natural := 0;
     begin
-        -- count the packets to place the phase changes
         file_open(f, VECTORS, read_mode);
         while not endfile(f) loop
             readline(f, l);
@@ -72,7 +66,7 @@ begin
             if sent >= 2 * total / 3 then slow <= 2; elsif sent >= total / 3 then slow <= 1; end if;
             for i in 0 to to_integer(unsigned(n)) - 1 loop
                 hread(l, w);
-                if slow > 0 then  -- idle cycles before this word
+                if slow > 0 then
                     uniform(s1, s2, r);
                     while r < 0.3 loop
                         SD_AXIS_TVALID <= '0';
@@ -93,7 +87,6 @@ begin
         wait;
     end process;
 
-    -- Random back-pressure on the result in the last phase
     ready : process
         variable s1 : positive := 5;
         variable s2 : positive := 2026;
@@ -104,7 +97,6 @@ begin
         MO_AXIS_TREADY <= '0' when (slow = 2 and r < 0.4) else '1';
     end process;
 
-    -- Checks every result against the last field of its line
     checker : process
         file f            : text;
         variable l        : line;
@@ -116,7 +108,7 @@ begin
         while not endfile(f) loop
             readline(f, l);
             hread(l, n);
-            for i in 0 to to_integer(unsigned(n)) loop  -- skip the words, w ends as the expected result
+            for i in 0 to to_integer(unsigned(n)) loop
                 hread(l, w);
             end loop;
             wait until rising_edge(ACLK) and MO_AXIS_TVALID = '1' and MO_AXIS_TREADY = '1';

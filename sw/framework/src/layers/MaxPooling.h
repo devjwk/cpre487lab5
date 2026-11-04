@@ -10,7 +10,7 @@ class MaxPoolingLayer : public Layer {
                     const LayerParams outParams)
         : Layer(inParams, outParams, LayerType::MAX_POOLING) {}
 
-    // Lab 4: max of int8 values needs no dequantize/requantize (same scale, order preserved)
+    // Max of int8 values: same scale, no requantize
     virtual void computeNaive(const LayerData& dataIn) const override {
         if (dataIn.getParams().elementSize == sizeof(i8)) {
             pool<i8>(dataIn);
@@ -77,7 +77,6 @@ class MaxPoolingLayer : public Layer {
         computeNaive(dataIn);
     }
 
-    // Lab 5: no multiply-accumulate in this layer, so nothing to offload to the MAC unit
     virtual void computeAccelerated(const LayerData& dataIn) const override {
         computeNaive(dataIn);
     }

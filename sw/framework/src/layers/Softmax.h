@@ -62,7 +62,6 @@ class SoftmaxLayer : public Layer {
         computeNaive(dataIn);
     }
 
-    // Lab 5: no multiply-accumulate in this layer, so nothing to offload to the MAC unit
     virtual void computeAccelerated(const LayerData& dataIn) const override {
         computeNaive(dataIn);
     }

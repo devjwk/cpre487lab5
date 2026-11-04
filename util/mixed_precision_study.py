@@ -1,10 +1,4 @@
-# Lab 5 Section 5.3: accuracy of the quantized model when each layer uses its own bit width.
-#
-# A numpy copy of the C++ quantized inference (sw/framework: computeQuantized), so that many per-layer
-# bit-width choices can be tried quickly on the 1000 exported validation images.
-#   acc = bias + sum((in - inZero) * w)   int MACs, int32 accumulate
-#   y   = acc / (inScale * wScale)        dequantize, ReLU, then requantize with the next layer's parameters
-# Usage: python3 util/mixed_precision_study.py            (from the repository root)
+# numpy copy of computeQuantized for trying per-layer bit widths. Usage: python3 util/mixed_precision_study.py
 import json
 import os
 import sys
@@ -17,7 +11,7 @@ LAYERS = [("conv1", 5, 3, 32, False, "input"), ("conv2", 5, 32, 32, True, "conv2
           ("conv3", 3, 32, 64, False, "max_pooling2d"), ("conv4", 3, 64, 64, True, "conv2d_2"),
           ("conv5", 3, 64, 64, False, "max_pooling2d_1"), ("conv6", 3, 64, 128, True, "conv2d_4"),
           ("dense1", 0, 2048, 256, False, "flatten"), ("dense2", 0, 256, 200, False, "dense")]
-MACS = [8640000, 80281600, 12460032, 21233664, 3686400, 4718592, 524288, 51200]  # per inference
+MACS = [8640000, 80281600, 12460032, 21233664, 3686400, 4718592, 524288, 51200]
 
 
 def load_float():
@@ -25,7 +19,7 @@ def load_float():
     for name, k, cin, cout, _, _ in LAYERS:
         w = np.fromfile(f"{DATA}/model/{name}_weights.bin", dtype=F32)
         b = np.fromfile(f"{DATA}/model/{name}_biases.bin", dtype=F32)
-        out.append((w.reshape((k * k * cin, cout) if k else (cin, cout)), b))  # HWIO / (in, out): columns = outputs
+        out.append((w.reshape((k * k * cin, cout) if k else (cin, cout)), b))
     return out
 
 
@@ -58,7 +52,7 @@ def float_inputs(images_u8, floats, keep=400000, seed=0):
     return samples
 
 
-CLIPS = (100, 99.999, 99.99, 99.9, 99.7, 99.5, 99, 98.5, 98, 97, 96, 95, 93, 90)  # percentiles tried as the clip value
+CLIPS = (100, 99.999, 99.99, 99.9, 99.7, 99.5, 99, 98.5, 98, 97, 96, 95, 93, 90)
 
 
 def calibrate_layer(w, b, bits, act):
@@ -87,13 +81,13 @@ def calibrate_layer(w, b, bits, act):
                 w=np.clip(np.rint(s_w * w), lo, hi).astype(np.float64), b=np.round(s_i * s_w * b).astype(np.int64))
 
 
-def quant(x, scale, zero, bits):  # Quant.h quantize(): round to nearest even, clamp to the signed range
+def quant(x, scale, zero, bits):  # same as Quant.h quantize()
     q = np.rint(x.astype(F32) * scale) + zero
     return np.clip(q, -(1 << (bits - 1)), (1 << (bits - 1)) - 1)
 
 
-def patches(x, k):  # (N, H, W, C) -> (N, H-k+1, W-k+1, k*k*C) in (ky, kx, ic) order
-    v = np.lib.stride_tricks.sliding_window_view(x, (k, k), axis=(1, 2))  # (N, H', W', C, ky, kx)
+def patches(x, k):
+    v = np.lib.stride_tricks.sliding_window_view(x, (k, k), axis=(1, 2))
     return v.transpose(0, 1, 2, 4, 5, 3).reshape(*v.shape[:3], -1)
 
 
@@ -105,18 +99,18 @@ def infer(images_u8, q):
         if name == "dense1":
             x = x.reshape(len(x), -1)
         cols = patches(x, k) if k else x
-        acc = (cols - p["z_i"]) @ p["w"] + p["b"]                 # exact: integers in float64
+        acc = (cols - p["z_i"]) @ p["w"] + p["b"]
         y = acc.astype(F32) / (p["s_i"] * p["s_w"])
         if i == len(LAYERS) - 1:
-            return y                                              # fp32 logits (softmax keeps the order)
+            return y
         y = np.maximum(y, 0)
         if pool:
             n, h, w_, c = y.shape
-            y = y.reshape(n, h // 2, 2, w_ // 2, 2, c).max(axis=(2, 4))  # max before/after requantize is the same
+            y = y.reshape(n, h // 2, 2, w_ // 2, 2, c).max(axis=(2, 4))
         x = quant(y, q[i + 1]["s_i"], q[i + 1]["z_i"], q[i + 1]["bits"])
 
 
-def accuracy(logits, labels):  # top-1 / top-10 in %, ties go to the lower class index like the C++ check
+def accuracy(logits, labels):
     true = logits[np.arange(len(labels)), labels][:, None]
     rank = (logits > true).sum(1) + ((logits == true) & (np.arange(logits.shape[1]) < labels[:, None])).sum(1)
     return 100 * (rank == 0).mean(), 100 * (rank < 10).mean()
@@ -128,7 +122,7 @@ def evaluate(bits, floats, ranges, images, labels, batch=50):
     return accuracy(logits, labels)
 
 
-def avg_bits(bits):  # MAC-weighted average operand width
+def avg_bits(bits):
     return sum(b * m for b, m in zip(bits, MACS)) / sum(MACS)
 
 
@@ -137,7 +131,7 @@ if __name__ == "__main__":
     labels = np.fromfile(f"{DATA}/val/val_labels_i32.bin", dtype=np.int32)
     floats = load_float()
     ranges = json.load(open(os.path.join(os.path.dirname(__file__), "activation_ranges.json")))
-    # The last 200 images are only used to calibrate; every accuracy below is on the first 800.
+    # Last 200 images calibrate, first 800 evaluate
     CAL, EV = slice(800, 1000), slice(0, 800)
     acts = float_inputs(images[CAL], floats)
     cache = {}
@@ -154,8 +148,7 @@ if __name__ == "__main__":
         logits = np.concatenate([infer(images[sel][j:j + 50], q) for j in range(0, len(images[sel]), 50)])
         return accuracy(logits, labels[sel])
 
-    # `export b1 ... b8`: write the calibrated model with these per-layer widths for the C++ framework
-    # (data/model/qvar: int8 weights, int32 biases, quant_params.txt with a bits column) and stop.
+    # export b1 ... b8 -> data/model/qvar
     if len(sys.argv) > 1 and sys.argv[1] == "export":
         bits = [int(b) for b in sys.argv[2:10]]
         out = f"{DATA}/model/qvar"
@@ -179,9 +172,7 @@ if __name__ == "__main__":
             row = [("%5.1f /%5.1f" % run([8] * i + [b] + [8] * (7 - i), scheme)) for b in (4, 2)]
             print(f"  only {L[0]:7s} lowered ({100 * MACS[i] / sum(MACS):4.1f}% of MACs)   4 bit {row[0]}    2 bit {row[1]}")
 
-    # Greedy search for the per-layer widths (calibrated scheme). One 32-bit FIFO word holds 32 / (2 * bits)
-    # weight/activation pairs, so the cost of a layer is MACs * bits / 16 words. Starting from 8 bit everywhere,
-    # lower the layer that saves the most words while top-1 and top-10 stay within `tol` points of the 8-bit model.
+    # Greedy: lower the layer that saves the most FIFO words (MACs * bits / 16) within `tol` of 8 bit
     words = lambda bits: sum(m * b / 16 for m, b in zip(MACS, bits))
     seen = {}
     score = lambda bits: seen.setdefault(tuple(bits), run(bits, "calibrated"))

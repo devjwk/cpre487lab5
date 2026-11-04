@@ -3,27 +3,9 @@
 -------------------------------------------------------------------------
 -- variable_mac.vhd
 -------------------------------------------------------------------------
--- DESCRIPTION: Variable-precision AXI-Stream MAC unit using spatial
--- accumulation (EPDNN 7.4). One 32-bit word carries 16 bits of weights
--- (upper half) and 16 bits of activations (lower half). The operand width
--- is chosen per packet and decides how the same multiplier hardware is
--- used:
---     8 bit : 2 multiply-accumulates per word
---     4 bit : 4 multiply-accumulates per word
---     2 bit : 8 multiply-accumulates per word
--- Field i of the weights is multiplied by field i of the activations
--- (field 0 = least significant bits). Partial sums pass through a
--- registered adder tree before they reach the accumulator.
---
--- The multiplier is built from 2-bit x 2-bit bricks. Each half of the
--- word has 16 bricks: at 8 bit they are shifted and added into one 8x8
--- product, at 4 bit into two 4x4 products, and at 2 bit four of them are
--- used as they are.
---
--- PROTOCOL: the first word of every packet is a header. Bits [1:0] set
--- the operand width for that packet: 0 = 8 bit, 1 = 4 bit, 2 = 2 bit.
--- TLAST on the last word makes the unit send the 32-bit sum and clear
--- the accumulator.
+-- DESCRIPTION: Variable-precision MAC (spatial accumulation, 2x2 bricks).
+-- Header word [1:0]: 0 = 8 bit, 1 = 4 bit, 2 = 2 bit. Data word: weights
+-- [31:16], activations [15:0]; 2/4/8 MACs per word.
 -------------------------------------------------------------------------
 
 library IEEE;
@@ -57,7 +39,6 @@ end variable_mac;
 
 
 architecture behavioral of variable_mac is
-    -- One mode-selected 2x2 brick, with no addition on this pipeline stage.
     function brick(w, a : std_logic_vector(7 downto 0);
                    mode : std_logic_vector(1 downto 0);
                    i, j : natural) return signed is
@@ -131,7 +112,7 @@ begin
                 MO_AXIS_TDATA <= (others => '0');
                 MO_AXIS_TID   <= (others => '0');
             elsif stall = '0' then
-                -- Stage 0: accept the packet header or a data word.
+                -- Stage 0: header or data word
                 s0_valid <= SD_AXIS_TVALID;
                 if SD_AXIS_TVALID = '1' then
                     s0_data       <= SD_AXIS_TDATA;
@@ -141,7 +122,7 @@ begin
                     expect_header <= SD_AXIS_TLAST;
                 end if;
 
-                -- Stage 1: select the operand width and register individual bricks.
+                -- Stage 1: bricks
                 valid_pipe(1) <= s0_valid;
                 last_pipe(1) <= s0_last;
                 tid_pipe(1) <= s0_tid;
@@ -159,7 +140,7 @@ begin
                     end if;
                 end if;
 
-                -- Stages 2-6: one registered adder-tree level per stage.
+                -- Stages 2-6: adder tree
                 valid_pipe(2) <= valid_pipe(1);
                 last_pipe(2) <= last_pipe(1);
                 tid_pipe(2) <= tid_pipe(1);
@@ -193,7 +174,7 @@ begin
                 tid_pipe(6) <= tid_pipe(5);
                 s6_sum <= resize(s5_groups(0), 21) + resize(s5_groups(1), 21);
 
-                -- Stage 7: accumulate and return one result per packet.
+                -- Stage 7: accumulate
                 mo_valid <= '0';
                 if valid_pipe(6) = '1' then
                     total := acc + resize(s6_sum, 32);

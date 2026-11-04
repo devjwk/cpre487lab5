@@ -1,7 +1,5 @@
 #pragma once
-// Stand-in for the Xilinx headers so the ZedBoard code path of sw/framework/src/Mac.h can run on a PC.
-// It imitates the registers of the AXI-Stream FIFO that Mac.h uses and writes every packet to a vector
-// file for the VHDL testbench: "<number of words> <word 0> ... <word n-1> <expected result>", all in hex.
+// Fake AXI-Stream FIFO registers for running Mac.h on a PC; writes each packet to the vector file
 #include <cstdint>
 #include <cstdio>
 #include <vector>
@@ -25,7 +23,6 @@ inline FakeFifo& fakeFifo() {
     return f;
 }
 
-// What the variable-precision MAC must return for a packet (header word, then data words)
 inline int32_t fakeMacResult(const std::vector<uint32_t>& words) {
     const int bits = 8 >> (words[0] & 3);
     int64_t acc = 0;
@@ -44,7 +41,7 @@ inline void Xil_Out32(uint32_t addr, uint32_t value) {
     FakeFifo& f = fakeFifo();
     if (addr == XLLF_TDFD_OFFSET) {
         f.tx.push_back(value);
-    } else if (addr == XLLF_TLF_OFFSET) {  // packet length in bytes: the packet goes out
+    } else if (addr == XLLF_TLF_OFFSET) {
         f.result = (uint32_t)fakeMacResult(f.tx);
         if (f.out) {
             fprintf(f.out, "%08zx", f.tx.size());

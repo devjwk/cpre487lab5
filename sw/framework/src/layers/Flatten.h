@@ -11,7 +11,7 @@ class FlattenLayer : public Layer {
         : Layer(inParams, outParams, LayerType::FLATTEN) {}
 
     virtual void computeNaive(const LayerData& dataIn) const override {
-        // Same memory layout, so a byte copy works for both fp32 and int8 data
+        // Same layout for fp32 and int8
         std::memcpy(getOutputData().raw(), dataIn.raw(), dataIn.getParams().byte_size());
     }
 
@@ -27,7 +27,6 @@ class FlattenLayer : public Layer {
         computeNaive(dataIn);
     }
 
-    // Lab 5: no multiply-accumulate in this layer, so nothing to offload to the MAC unit
     virtual void computeAccelerated(const LayerData& dataIn) const override {
         computeNaive(dataIn);
     }

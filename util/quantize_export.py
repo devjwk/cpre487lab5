@@ -1,7 +1,4 @@
-# Lab 4 Section 4: export quantized weights/biases + per-layer scales for the C++ framework.
-# Usage: python3 quantize_export.py <bits> [model_dir] [activation_ranges.json]
-#   reads  <model_dir>/<layer>_weights.bin, <layer>_biases.bin (fp32)
-#   writes <model_dir>/q<bits>/<layer>_weights.bin (int8), <layer>_biases.bin (int32), quant_params.txt
+# Usage: python3 quantize_export.py <bits> [model_dir] [activation_ranges.json] -> <model_dir>/q<bits>/
 import json
 import os
 import sys
@@ -11,10 +8,10 @@ bits = int(sys.argv[1]) if len(sys.argv) > 1 else 8
 model_dir = sys.argv[2] if len(sys.argv) > 2 else "../framework/data/model"
 ranges_file = sys.argv[3] if len(sys.argv) > 3 else os.path.join(os.path.dirname(__file__), "activation_ranges.json")
 
-qmax = 2 ** (bits - 1) - 1  # 127 for 8 bit
+qmax = 2 ** (bits - 1) - 1
 ranges = json.load(open(ranges_file))
 
-# C++ layer name -> Keras name of the activation it receives as input (from Section 3.3 profiling)
+# C++ layer -> Keras activation it receives
 layer_inputs = [("conv1", "input"), ("conv2", "conv2d"), ("conv3", "max_pooling2d"), ("conv4", "conv2d_2"),
                 ("conv5", "max_pooling2d_1"), ("conv6", "conv2d_4"), ("dense1", "flatten"), ("dense2", "dense")]
 
