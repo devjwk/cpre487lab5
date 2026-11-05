@@ -1,21 +1,21 @@
 // Builds the Word report: (npm install docx) then node tools/make_report.js lab5_report_06.docx
 const fs = require("fs");
-const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, ShadingType, BorderStyle,
-        HeadingLevel, LevelFormat, AlignmentType, Header, Footer, PageNumber } = require("docx");
+const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, BorderStyle,
+        HeadingLevel, LevelFormat, AlignmentType } = require("docx");
 
-const W = 10034;  // A4 width minus 0.65-inch side margins
-const FONT = "Arial";
-const SERIF = "Georgia";
+const W = 9360;  // Letter width minus 1-inch margins (same layout as the Lab 3 and Lab 4 reports)
+const FONT = "Times New Roman";
 // `code` spans are written with backticks in the strings below
-const runs = (s, base = {}) => s.split("`").map((t, i) => new TextRun({ text: t, ...base, ...(i % 2 ? { font: "Consolas", size: 19, shading: { type: ShadingType.CLEAR, fill: "F1F0ED", color: "auto" } } : {}) }));
-const P = (s, o = {}) => new Paragraph({ spacing: { after: 130, line: 310 }, children: runs(s), ...o });
-// Lab 1 style: a bold question followed by the answer in the same paragraph
-const Q = (q, a) => new Paragraph({ spacing: { after: 140, line: 310 }, children: [new TextRun({ text: q + " ", bold: true }), ...runs(a)] });
-const H1 = s => new Paragraph({ heading: HeadingLevel.HEADING_1, spacing: { before: 330, after: 120 }, children: [new TextRun(s)] });
-const H2 = (s, pageBreakBefore = false) => new Paragraph({ heading: HeadingLevel.HEADING_2, pageBreakBefore, spacing: { before: 260, after: 100 }, children: [new TextRun(s)] });
-const B = s => new Paragraph({ numbering: { reference: "b", level: 0 }, spacing: { after: 60 }, children: runs(s) });
-const CAP = (n, s) => new Paragraph({ spacing: { before: 80, after: 190 }, children: [new TextRun({ text: `Table ${n}. `, bold: true }), ...runs(s)] });
-const border = { style: BorderStyle.SINGLE, size: 3, color: "E3DFD8" };
+const runs = (s, base = {}) => s.split("`").map(t => new TextRun({ text: t, ...base }));
+const P = (s, o = {}) => new Paragraph({ spacing: { after: 160, line: 276 }, children: runs(s), ...o });
+// Lab 4 style: the handout question highlighted, the answer below it
+const HL = s => new Paragraph({ spacing: { before: 200, after: 60 }, keepNext: true, children: runs(s, { highlight: "yellow" }) });
+const Q = (q, a) => a ? [HL(q), P(a)] : [HL(q)];
+const H1 = (s, pageBreakBefore = false) => new Paragraph({ heading: HeadingLevel.HEADING_1, pageBreakBefore, spacing: { before: 360, after: 200 }, keepNext: true, children: [new TextRun(s)] });
+const H2 = (s, pageBreakBefore = false) => new Paragraph({ heading: HeadingLevel.HEADING_2, pageBreakBefore, spacing: { before: 240, after: 100 }, keepNext: true, children: runs(s, { highlight: "yellow" }) });
+const B = s => new Paragraph({ numbering: { reference: "b", level: 0 }, spacing: { after: 60, line: 276 }, children: runs(s) });
+const CAP = (n, s) => new Paragraph({ spacing: { before: 60, after: 200 }, children: runs(`Table ${n}: ${s}`, { size: 18 }) });
+const border = { style: BorderStyle.SINGLE, size: 4, color: "000000" };
 const borders = { top: border, bottom: border, left: border, right: border };
 function T(widths, rows) {
   const scale = W / widths.reduce((a, b) => a + b, 0);
@@ -24,15 +24,15 @@ function T(widths, rows) {
     rows: rows.map((r, ri) => new TableRow({ tableHeader: ri === 0, children: r.map((c, ci) => new TableCell({
       width: { size: cw[ci], type: WidthType.DXA }, borders,
       margins: { top: 65, bottom: 65, left: 100, right: 100 },
-      shading: ri === 0 ? { type: ShadingType.CLEAR, fill: "F2F0EB", color: "auto" } : undefined,
-      children: [new Paragraph({ keepNext: ri === rows.length - 1, children: runs(String(c), { size: 19, color: ri === 0 ? "555555" : "222222" }) })] })) })) });
+      children: [new Paragraph({ keepNext: ri === rows.length - 1, children: runs(String(c), { size: 20 }) })] })) })) });
 }
 
 const body = [
-  new Paragraph({ heading: HeadingLevel.TITLE, spacing: { after: 80 }, children: [new TextRun("CprE 487/587 Lab 5 Report (Group 06)")] }),
-  P("Oct 9, 2026 · Jongwoo Kim · Zach Dixon", { spacing: { after: 240 } }),
+  new Paragraph({ heading: HeadingLevel.TITLE, alignment: AlignmentType.CENTER, spacing: { before: 0, after: 10300 }, children: [new TextRun("Lab 5 Report")] }),
+  ...["Machine Learning for Hardware Design", "Authors: Zach Dixon, Jongwoo Kim", "Team Number: 06"].map((t, i) =>
+    new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: i < 2 ? 500 : 0 }, children: [new TextRun({ text: t, size: 30 })] })),
 
-  H1("1. Six MAC units (3.3)"),
+  H1("1. Six MAC units (3.3)", true),
   P("We made 4-bit and 2-bit versions of the staged and pipelined MAC, so we have six MACs with the 8-bit ones from Lab 3. Both MACs already had a `C_DATA_WIDTH` generic, so all versions use the same VHDL with a different generic value."),
   T([15, 8, 8, 8, 8, 13, 13, 15, 14], [
     ["MAC", "Bits", "LUT", "FF", "DSP", "WNS (ns)", "Fmax (MHz)", "Dynamic power (W)", "Static power (W)"],
@@ -87,7 +87,7 @@ const body = [
   CAP(4, "Estimated energy of one inference. The pipelined MAC needs 131,595,779 cycles (the MACs plus 3 cycles to fill the pipeline)."),
 
   H2("More than one PE (4.3)"),
-  Q("How do power, energy, area and performance scale?", "With `P` MAC units in parallel, throughput and area grow by `P` and the time for one inference drops by `P`. Dynamic power also grows by `P`, but static power is paid only once. So the dynamic energy per inference stays the same and the static energy gets smaller."),
+  ...Q("How do power, energy, area and performance scale?", "With `P` MAC units in parallel, throughput and area grow by `P` and the time for one inference drops by `P`. Dynamic power also grows by `P`, but static power is paid only once. So the dynamic energy per inference stays the same and the static energy gets smaller."),
   T([15, 20, 22, 22, 21], [
     ["PEs", "LUT", "Time (s)", "Power (W)", "Energy (mJ)"],
     [1, 118, "0.660", "0.130", "85.7"], [3, 354, "0.220", "0.180", "39.6"],
@@ -95,8 +95,8 @@ const body = [
   CAP(5, "The staged 8-bit MAC with more PEs. The energy cannot go below the dynamic part, 0.025 W x 0.660 s = 16.5 mJ."),
 
   H2("Do these values make sense? (4.4)"),
-  Q("Do they over or underestimate?", "They are far too optimistic for our board. The estimated time is 1.32 s at 100 MHz and we measured 29.07 s, which is 22 times longer. One MAC takes about 0.22 us on the board, or 22 clock cycles instead of 1."),
-  Q("What are we not taking into account?", ""),
+  ...Q("Do they over or underestimate?", "They are far too optimistic for our board. The estimated time is 1.32 s at 100 MHz and we measured 29.07 s, which is 22 times longer. One MAC takes about 0.22 us on the board, or 22 clock cycles instead of 1."),
+  ...Q("What are we not taking into account?", ""),
   B("Data movement. The ARM core writes one word at a time to the FIFO through memory-mapped I/O and waits for each result."),
   B("The rest of the system. The full system uses 1.683 W, and 1.529 W of that is the ARM processor. The MAC uses 2 mW or less. One real inference costs about 1.683 W x 29.07 s = 48.9 J, not 85.7 mJ."),
   B("The FIFO. It needs 764 LUTs and 704 flip-flops, more than six times the staged 8-bit MAC."),
@@ -104,7 +104,7 @@ const body = [
 
   H2("Execution time of all implementations (4.5)"),
   P("The measured times are in Table 2. The staged and pipelined MACs differ by 1 ms at 8 bits, and the 8-bit and 4-bit runs are the same. The quantized model on the ARM core alone takes 1.35 s, so going through the MAC is 21.5 times slower."),
-  Q("Why are the 2-bit runs 2.7% faster?", "This does not come from the MAC. The staged and pipelined 2-bit runs take exactly the same time, and the gain is the same in every layer, about 6 ns per word. One word takes 21.5 clock cycles in the 8-bit and 4-bit builds and 20.9 in the 2-bit build. We compared the compiled code of the 4-bit and 2-bit builds: the loop that writes to the FIFO has the same number of instructions and only the constants differ. The 8-bit build has one instruction fewer and is not faster. So the amount of code is not the reason. We think it comes from how the timing of the ARM core lines up with the 100 MHz clock each time a word crosses to the FIFO, but we did not test this."),
+  ...Q("Why are the 2-bit runs 2.7% faster?", "This does not come from the MAC. The staged and pipelined 2-bit runs take exactly the same time, and the gain is the same in every layer, about 6 ns per word. One word takes 21.5 clock cycles in the 8-bit and 4-bit builds and 20.9 in the 2-bit build. We compared the compiled code of the 4-bit and 2-bit builds: the loop that writes to the FIFO has the same number of instructions and only the constants differ. The 8-bit build has one instruction fewer and is not faster. So the amount of code is not the reason. We think it comes from how the timing of the ARM core lines up with the 100 MHz clock each time a word crosses to the FIFO, but we did not test this."),
   T([14, 20, 16, 17, 15, 18], [
     ["Layer", "MACs", "Software (ms)", "MAC unit (ms)", "us per MAC", "Share of MAC time"],
     ["conv1", "8,640,000", 119, "1,973", "0.228", "6.8%"],
@@ -116,7 +116,7 @@ const body = [
     ["dense1", "524,288", 13, 127, "0.242", "0.4%"],
     ["dense2", "51,200", 0, 11, "0.215", "0.0%"]]),
   CAP(6, "Per-layer times for the staged 8-bit MAC. Max pooling, flatten and softmax take less than 1 ms."),
-  Q("Why are the speeds the same?", "The time per MAC is the same in every layer, so the run time only follows the number of MACs. The time goes to moving words between the ARM core and the FIFO, and every version moves the same number of words."),
+  ...Q("Why are the speeds the same?", "The time per MAC is the same in every layer, so the run time only follows the number of MACs. The time goes to moving words between the ARM core and the FIFO, and every version moves the same number of words."),
 
   H2("Effect of a variable-precision MAC (4.6)"),
   B("Area: our variable MAC uses 842 LUTs and 968 registers, more than any fixed-width MAC in Table 1. Sharing its 2-bit multiplier bricks across modes does not make this implementation smaller."),
@@ -126,7 +126,7 @@ const body = [
 
   H1("4. Variable-precision MAC (5)"),
   H2("Choice and format (5.1–5.2)"),
-  Q("Which method did we choose?", "Spatial accumulation. In our system the ARM core sends each FIFO word by memory-mapped I/O, so putting more multiply-accumulates into each word can reduce the number of writes. A header at the start of each packet selects the operand width: code 0 is 8 bits, 1 is 4 bits, and 2 is 2 bits."),
+  ...Q("Which method did we choose?", "Spatial accumulation. In our system the ARM core sends each FIFO word by memory-mapped I/O, so putting more multiply-accumulates into each word can reduce the number of writes. A header at the start of each packet selects the operand width: code 0 is 8 bits, 1 is 4 bits, and 2 is 2 bits."),
   P("Each 32-bit data word holds 16 bits of weights above 16 bits of activations. The MAC computes 2, 4, or 8 operand pairs per word at 8, 4, or 2 bits. TLAST returns the 32-bit accumulated sum and clears the accumulator for the next packet."),
 
   H2("Precision of each layer (5.3)"),
@@ -173,23 +173,21 @@ const body = [
     ["Mixed 8/4/8/4/4/4/4/8", "24.000", "60.625", "800"]]),
   CAP(10, "Same calibrated quantization method for every row: images 800–999 calibrate, images 0–799 evaluate."),
   P("The mixed model retains nearly the same accuracy as calibrated uniform 8-bit while sending fewer FIFO words. Lab 4's fixed-width board runs use its required scale and zero-point method, so the difference between Lab 4 fixed accuracy and this calibrated mixed accuracy cannot be attributed only to variable precision. The mixed model scored 23.5% top-1 and 60.6% top-10 on all 1,000 images, but that count includes the 200 calibration images; Table 10 is the separate evaluation set."),
-  Q("What drove and limited each benefit?", "Packing reduced FIFO traffic and therefore board time and estimated system energy. The shared brick logic and registered adder tree increased MAC area and standalone power. System power changed little because the PS7 dominates. Packet headers and one-at-a-time ARM writes limited the speedup. The 2-bit mode is supported in hardware but not selected for this model because of its accuracy loss."),
+  ...Q("What drove and limited each benefit?", "Packing reduced FIFO traffic and therefore board time and estimated system energy. The shared brick logic and registered adder tree increased MAC area and standalone power. System power changed little because the PS7 dominates. Packet headers and one-at-a-time ARM writes limited the speedup. The 2-bit mode is supported in hardware but not selected for this model because of its accuracy loss."),
 ];
 
 const doc = new Document({
   styles: {
-    default: { document: { run: { font: FONT, size: 21, color: "202020" } } },
+    default: { document: { run: { font: FONT, size: 24, color: "000000" } } },
     paragraphStyles: [
-      { id: "Title", name: "Title", basedOn: "Normal", next: "Normal", run: { font: SERIF, size: 52, color: "202020" } },
-      { id: "Heading1", name: "Heading 1", basedOn: "Normal", next: "Normal", quickFormat: true, run: { font: SERIF, size: 36, color: "202020" }, paragraph: { outlineLevel: 0 } },
-      { id: "Heading2", name: "Heading 2", basedOn: "Normal", next: "Normal", quickFormat: true, run: { font: SERIF, size: 29, color: "202020" }, paragraph: { outlineLevel: 1 } },
+      { id: "Title", name: "Title", basedOn: "Normal", next: "Normal", run: { font: FONT, size: 48, color: "000000" } },
+      { id: "Heading1", name: "Heading 1", basedOn: "Normal", next: "Normal", quickFormat: true, run: { font: FONT, size: 30, color: "000000" }, paragraph: { outlineLevel: 0 } },
+      { id: "Heading2", name: "Heading 2", basedOn: "Normal", next: "Normal", quickFormat: true, run: { font: FONT, size: 24, color: "000000" }, paragraph: { outlineLevel: 1 } },
     ] },
   numbering: { config: [{ reference: "b", levels: [{ level: 0, format: LevelFormat.BULLET, text: "•", alignment: AlignmentType.LEFT,
     style: { paragraph: { indent: { left: 540, hanging: 270 } } } }] }] },
   sections: [{
-    properties: { page: { size: { width: 11906, height: 16838 }, margin: { top: 1050, bottom: 930, left: 936, right: 936, header: 300, footer: 420 } } },
-    headers: { default: new Header({ children: [new Paragraph({ children: [new TextRun({ text: "CprE 487/587 Lab 5 Report (Group 06)", font: FONT, size: 15, color: "777777" })] })] }) },
-    footers: { default: new Footer({ children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: "Page ", font: FONT, size: 15, color: "777777" }), new TextRun({ children: [PageNumber.CURRENT], font: FONT, size: 15, color: "777777" }), new TextRun({ text: " of ", font: FONT, size: 15, color: "777777" }), new TextRun({ children: [PageNumber.TOTAL_PAGES], font: FONT, size: 15, color: "777777" })] })] }) },
+    properties: { page: { size: { width: 12240, height: 15840 }, margin: { top: 1440, bottom: 1440, left: 1440, right: 1440 } } },
     children: body,
   }],
 });
