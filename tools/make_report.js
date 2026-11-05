@@ -7,13 +7,13 @@ const W = 9360;  // Letter width minus 1-inch margins (same layout as the Lab 3 
 const FONT = "Times New Roman";
 // `code` spans are written with backticks in the strings below
 const runs = (s, base = {}) => s.split("`").map(t => new TextRun({ text: t, ...base }));
-const P = (s, o = {}) => new Paragraph({ spacing: { after: 160, line: 276 }, children: runs(s), ...o });
+const P = (s, o = {}) => new Paragraph({ spacing: { after: 160, line: 264 }, children: runs(s), ...o });
 // Lab 4 style: the handout question highlighted, the answer below it
 const HL = s => new Paragraph({ spacing: { before: 200, after: 60 }, keepNext: true, children: runs(s, { highlight: "yellow" }) });
 const Q = (q, a) => a ? [HL(q), P(a)] : [HL(q)];
 const H1 = (s, pageBreakBefore = false) => new Paragraph({ heading: HeadingLevel.HEADING_1, pageBreakBefore, spacing: { before: 360, after: 200 }, keepNext: true, children: [new TextRun(s)] });
 const H2 = (s, pageBreakBefore = false) => new Paragraph({ heading: HeadingLevel.HEADING_2, pageBreakBefore, spacing: { before: 240, after: 100 }, keepNext: true, children: runs(s, { highlight: "yellow" }) });
-const B = s => new Paragraph({ numbering: { reference: "b", level: 0 }, spacing: { after: 60, line: 276 }, children: runs(s) });
+const B = s => new Paragraph({ numbering: { reference: "b", level: 0 }, spacing: { after: 60, line: 264 }, children: runs(s) });
 const CAP = (n, s) => new Paragraph({ spacing: { before: 60, after: 200 }, children: runs(`Table ${n}: ${s}`, { size: 18 }) });
 const border = { style: BorderStyle.SINGLE, size: 4, color: "000000" };
 const borders = { top: border, bottom: border, left: border, right: border };
